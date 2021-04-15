@@ -1,3 +1,20 @@
+Version 2.1.0 ->
+
+- Added survey progress bar
+- Modified update checker for improved functionality
+- Adjusted "missing survey error" when giving surveys
+- Bunny image resized and Cat image changed to brown
+- Creation Menu "Create new survey" button now comes above "Load survey"
+- Analyze data now has a teal icon instead of blue
+- Creation Menu added seperator line, and "more" button now says "other"
+- Rearranged components in Create frame, increased size of help text, and renamed "Advanced Settings" button to "Advanced Configurations"
+- Changed filesystem used for OSX and Linux
+- When filling user name drop-down in Analysis set to be case in-sensitive
+
+Version 2.0.6.1 ->
+
+- Added dependent library to Easy Survey Creator jar application
+
 Version 2.0.6 ->
 
 - Increased size of create and edit frame for questions
