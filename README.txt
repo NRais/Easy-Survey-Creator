@@ -1,12 +1,12 @@
-COPYRIGHT NOTICE: By downloading, recieving, installing or using The Easy Survey Creator you agree to the terms of the CC BY-ND license, under which it is licensed. https://creativecommons.org/licenses/by-nd/4.0/
+COPYRIGHT NOTICE: By downloading, receiving, installing or using The Easy Survey Creator you agree to the terms of the CC BY-ND license, under which it is licensed. https://creativecommons.org/licenses/by-nd/4.0/
 
 This application, its code, images, and all its components are copyrighted by Nathansoftware.com 2018 under the CC BY-ND 4.0 license
 
 
-Version 2.1.0 has many new features that make it even easier to create and give surveys. See bottom for full CHANGELOG.
+Version 2.2.1 NEW RELEASE includes more customizable options for creating surveys and graphical analysis tools. See bottom for full CHANGELOG.
 
-Version 2.1.0 Jar - The Jar is an alternate application version. It is an application that can be run on any coomputer that has Java
-Version 2.1.0 - The Easy Survey Creator 2.1.0 setup is a standalone installer for Windows 7+.
+Version 2.2.1 Jar - The Jar is an alternate application version. It is an application that can be run on any coomputer that has Java
+Version 2.2.1 - The Easy Survey Creator 2.2.0 setup is a standalone installer for Windows 7+.
 
 
 ---- INSTALLATION ----
@@ -18,13 +18,13 @@ WINDOWS: If a Windows Smart Screen notification blocks the installer choose "Run
 MAC: See this article "http://osxdaily.com/2012/07/27/app-cant-be-opened-because-it-is-from-an-unidentified-developer/"
 
 
-- Version 2.1.0-Setup is a standalone installer that can install the Easy Survey Creator. Windows 7+ supported.
+- Version 2.2.1-Setup is a standalone installer that can install the Easy Survey Creator. Windows 7+ supported.
 
 To install double-click the .exe installer and run the setup.
 Once installed double-click the shortcut on your desktop and run it.
 
 
-- Version 2.1.0-Jar is a application that can be run on any system with a JRE 7 or greater.
+- Version 2.2.1-Jar is a application that can be run on any system with a JRE 7 or greater.
 
 To install ensure you have a (Java) JRE 7+ installed. (see http://www.oracle.com/technetwork/java/javase/downloads/index.html)
 If you do you can simply double-click the .jar and run it.
@@ -42,15 +42,34 @@ SOLUTION: Disable antivirus software temporarily and restart the installer. If y
 
 - During installation "App can’t be opened because it is from an unidentified developer". Right-Click and select "Open"
 
-Version 2.1.0 ->
 
-- Added survey progress bar
-- Modified update checker for improved functionality
-- Adjusted "missing survey error" when giving surveys
-- Bunny image resized and Cat image changed to brown
-- Creation Menu "Create new survey" button now comes above "Load survey"
-- Analyze data now has a teal icon instead of blue
-- Creation Menu added seperator line, and "more" button now says "other"
-- Rearranged components in Create frame, increased size of help text, and renamed "Advanced Settings" button to "Advanced Configurations"
-- Changed filesystem used for OSX and Linux
-- When filling user name drop-down in Analysis set to be case in-sensitive
+Version 2.2.1 ->
+
+- Added check box in Creation Frame to allow user to type their own answers
+- Added feature in Question Frame where "__" signifies that the user is allowed to type
+- Made new text fields transparent so pictures can be wrapped behind them
+- Updated save files to process these answers
+- Added graphical analysis features 
+- New Pie Charts and Bar Graphs can be viewed in Analysis Frame
+- Fixed bug when exporting survey from Analysis Frame
+
+Version 2.2.0 ->
+
+- Improved user interface
+- Update Analysis menu
+- Improved result analysis algorithims
+- Fixed bugs in survey presentation process and creation menu
+
+Version 2.1.1.1 -> 
+
+- Added cussword filter
+- Increased survey option font size
+- Fixed bug when conducting, getting name of newly created surveys broke
+- Adjusted image size on survey menu
+- Added "set active survey" button to the creation menu
+
+Version 2.1.1 -> 
+
+- Password create menu, removed no button, set to launch the selected window
+- Creation Options automatically launch on start
+- Creation Menu adjusted for ease and functionality
