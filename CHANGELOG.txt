@@ -1,3 +1,37 @@
+
+Version 2.2.1 ->
+
+- Added check box in Creation Frame to allow user to type their own answers
+- Added feature in Question Frame where "__" signifies that the user is allowed to type
+- Made new text fields transparent so pictures can be wrapped behind them
+- Updated save files to process these answers
+- Added graphical analysis features 
+- New Pie Charts and Bar Graphs can be viewed in Analysis Frame
+- Fixed bug when exporting survey from Analysis Frame
+
+
+
+Version 2.2.0 ->
+
+- Improved user interface
+- Update Analysis menu
+- Improved result analysis algorithims
+- Fixed bugs in survey presentation process and creation menu
+
+Version 2.1.1.1 -> 
+
+- Added cussword filter
+- Increased survey option font size
+- Fixed bug when conducting, getting name of newly created surveys broke
+- Adjusted image size on survey menu
+- Added "set active survey" button to the creation menu
+
+Version 2.1.1 -> 
+
+- Password create menu, removed no button, set to launch the selected window
+- Creation Options automatically launch on start
+- Creation Menu adjusted for ease and functionality
+
 Version 2.1.0 ->
 
 - Added survey progress bar
@@ -34,12 +68,6 @@ Version 2.0.6 ->
 - Fixed file reader bug (un-closed file reader) which was causing open surveys to not be able to be deleted
 - Made export window automatically show exported survey name so user does not have to retype it
 - Changed the survey conductor so it positions the label correctly when the only a single line of text is being used in the introduction
-
-TODO:
-
-Change font color back to black in analysis frame each time you press go
-Add 'summary' to file name in analysis frame 'save' tool
-Analysis tool 'Go' button doesn't reset 'summary' button to disabled
 
 Version 2.0.5 -> 
 
