@@ -1,0 +1,36 @@
+Version 2.0.6 ->
+
+- Increased size of create and edit frame for questions
+- Changed the (top right corner) exit button to bring up the save frame if you have made changes
+- Added an option for the saveCheckContinue function if the 'exit' condition is in play
+- In the 'conduct survey' tool, reordered items to fix the problem when clicking on option (A) 
+- In the 'conduct survey' tool increased length of the lines for the question's options
+- In the 'conduct survey' tool made it when you click on an option it gets larger and bold
+- In the analysis frame made the 'save' option automatically come up with a name for your save file with: survey name - user name - date
+	- made changes to the date processing such that the date is a global variable
+	- added code that automatically fixes the QuesLoad.txt file if their is no 5th line (as in previous versions)
+	- edited (in the analysis frame) the 'save' option so it only stores location if you press OK
+	- Updated the creation frame and main menu so they also respond accordingly to the 5th line of the save file (and don't forget about it)
+- Increased the question length to be 356 chars (allowing for about 7 lines for the question in surveys), the survey now recommends you reduce your questions if they are more than 256
+- Increased intro line so it can be up to 256 chars.
+	- made changes to code such that the intro line is moved upwards if the line is longer
+- Fixed file reader bug (un-closed file reader) which was causing open surveys to not be able to be deleted
+- Made export window automatically show exported survey name so user does not have to retype it
+- Changed the survey conductor so it positions the label correctly when the only a single line of text is being used in the introduction
+
+TODO:
+
+Change font color back to black in analysis frame each time you press go
+Add 'summary' to file name in analysis frame 'save' tool
+Analysis tool 'Go' button doesn't reset 'summary' button to disabled
+
+Version 2.0.5 -> 
+
+- Added visible time for "save" and "set as default survey"
+- Increased font size and italisized main label in Creation Tool
+- Fixed split text lines for too long lines in Survey Conducting tool
+- Fixed bugs caused by too long lines in Survey Analysis tool
+
+- Added percentage counter for Summary tool
+- Added "import" and "export" options for surveys
+- Changed save message if survey has already been set as default

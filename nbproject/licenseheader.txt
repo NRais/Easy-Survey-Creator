@@ -1,0 +1,25 @@
+<#if licenseFirst??>
+${licenseFirst}
+</#if>
+${licensePrefix}Here comes the text of your license
+${licensePrefix} * Copyright 2017 Nathan Rais 
+${licensePrefix} * 
+${licensePrefix} *      This file is part of The Easy Survey Creator.
+${licensePrefix} *
+${licensePrefix} *   The Easy Survey Creator by Nathan Rais is free software 
+${licensePrefix} *   but is licensed under the terms of the Creative Commons 
+${licensePrefix} *   Attribution NoDerivatives license (CC BY-ND). Under the CC BY-ND license 
+${licensePrefix} *   you may redistribute this as long as you give attribution and do not 
+${licensePrefix} *   modify any part of this software in any way.
+${licensePrefix} *
+${licensePrefix} *   The Easy Survey Creator is distributed in the hope that it will be useful,
+${licensePrefix} *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+${licensePrefix} *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+${licensePrefix} *   CC BY-ND license for more details.
+${licensePrefix} *
+${licensePrefix} *   You should have received a copy of the CC BY-ND license along with 
+${licensePrefix} *   The Easy Survey Creator. If not, see <https://creativecommons.org/licenses/by-nd/4.0/>.
+${licensePrefix}
+<#if licenseLast??>
+${licenseLast}
+</#if>
