@@ -10,6 +10,9 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -23,8 +26,12 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.ImageIcon;
+import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.text.*;
 
@@ -89,13 +96,14 @@ public class QuestionFrame extends javax.swing.JFrame {
         versionLabel.setText("Copyright NathanSoftware.com version " + version);
         
         getRootPane().setDefaultButton(GoButton);
-        
+        setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         
         beginProgram();
     }
     
     public void beginProgram() {
                
+            
         try {
             BufferedReader reader = new BufferedReader(new FileReader(pathway + "/QuesLoad.txt"));
             
@@ -104,17 +112,16 @@ public class QuestionFrame extends javax.swing.JFrame {
             questionFileName = questionFile.substring(0, questionFile.indexOf(".csv"));
 
             
-            // the name is found between the last \ and the last .
-            if (!questionFileName.contains("\\")) {
+            // the name is found between the last / and the last "."
+            if (questionFileName.contains("/")) {
                 
                 questionFileName = questionFileName.substring(questionFileName.lastIndexOf("/") + 1);
-            } else {
-                // couldn't find /
-                // instead try \\
+            } 
+            // but we also check for forward slashes just in case
+            if (questionFileName.contains("\\")) {
                 questionFileName = questionFileName.substring(questionFileName.lastIndexOf("\\") + 1);
-
-            }            
-            System.out.println("TO : " + questionFileName);
+            }        
+            
             
             //next get the image
             imageFile = reader.readLine();
@@ -145,7 +152,7 @@ public class QuestionFrame extends javax.swing.JFrame {
                     
                     ID.drawScaledImage(I, this, g);*/
                     
-                    MainPicture.setSize(680, 365);
+                    MainPicture.setSize(680, 340);
                 }
                 MainPicture.setIcon(imageIcon);
             }
@@ -162,9 +169,10 @@ public class QuestionFrame extends javax.swing.JFrame {
                // otherwise do nothing because its already what it should be
             }
             
+            reader.close();
         } catch (Exception e) { //if theres any errors it must mean the QuesLoad file couldn't be loaded
             
-            System.out.println(e);
+            // ****** System.out.printlnln(e);
             
         }
         
@@ -179,7 +187,7 @@ public class QuestionFrame extends javax.swing.JFrame {
             surveyString = "";
         }
          
-        System.out.println("Setting up intro stuff, intro:" + introLine);
+        // ****** System.out.printlnln("Setting up intro stuff, intro:" + introLine);
         
         int i = 1; // if it is not greater than 68 it is just 1 line
         if(introLine.length() > 68) { //if the intro is too long
@@ -188,7 +196,7 @@ public class QuestionFrame extends javax.swing.JFrame {
             // break the line every 68 characters with a newline char
             introLine = WordUtils.wrap(introLine, 68);
 
-            System.out.println("Too long question bumbing to next line");
+            // ****** System.out.printlnln("Too long question bumbing to next line");
 
             // break the string at any new line characters
             String[] lines = introLine.split("\n");
@@ -217,7 +225,7 @@ public class QuestionFrame extends javax.swing.JFrame {
             // kill the question frame and reload the menu
             goToMainMenu();
             
-            System.out.println("Error");
+            // ****** System.out.printlnln("Error");
             JFrame error = new JFrame("");
             error.setAlwaysOnTop(true);
             JLabel errorLabel = new JLabel("ERROR: No Question File");
@@ -238,6 +246,11 @@ public class QuestionFrame extends javax.swing.JFrame {
         BOption3.setVisible(true);
         BOption4.setVisible(true);
         BOption5.setVisible(true);   
+        FOption1.setVisible(true);
+        FOption2.setVisible(true);
+        FOption3.setVisible(true);
+        FOption4.setVisible(true);
+        FOption5.setVisible(true);   
         
         // basically this function opens and reads the file up to the question you are on
         // then it reads the question you are on and shows it
@@ -256,20 +269,22 @@ public class QuestionFrame extends javax.swing.JFrame {
 
             //first figure out which question your on QuesNum
 
-            String[] questionArray = null;
+            String[] questionArray = new String[7];
 
             //then read that line of the file and split it and store it in a array
             try {
-                questionArray = line.split(",");
-
-
+                // fill the question array with the items from the line splitting
+                // Note: if there are not enough items the last few in the array will be null and ignored
+                // Note: if there are too many items then it will break and end the survey
+                System.arraycopy(line.split(","), 0, questionArray, 0, line.split(",").length);
+                
                 for (int i = 1; i < questionArray.length; i++) {
-                    System.out.println("Question " + i + ": " + questionArray[i]);
+                    // ****** System.out.printlnln("Question " + i + ": " + questionArray[i]);
                 }
             } catch (Exception e) {
-                System.out.println("Break cause their are no more questions");
+                // ****** System.out.printlnln("Break cause their are no more questions");
 
-                //if this breaks then it means there is nothing in the line so its just a fluke and doesn't actually have a question therefore just end
+                //if this breaks then it means there is nothing in the line (or too much in the line) so its just a fluke and doesn't actually have a question therefore just end
                 QuestionLabel.setText("There are no more questions. Thank you " + userName + " for answering this survey.");
                 question = "BeforeLast";
                 GoButton.setText("Close");
@@ -277,7 +292,7 @@ public class QuestionFrame extends javax.swing.JFrame {
 
             //then display the different fields of the array into the text fields and radio buttons
             try {
-                System.out.println("Survey showing question");
+                // ****** System.out.printlnln("Survey showing question");
 
                 // first check if we need to par it
                 String textLine = questionArray[1];
@@ -291,7 +306,7 @@ public class QuestionFrame extends javax.swing.JFrame {
                     // break the line every 68 characters with a newline char
                     textLine = WordUtils.wrap(textLine, 68);
 
-                    System.out.println("Too long question bumbing to next line");
+                    // ****** System.out.printlnln("Too long question bumbing to next line");
 
                     // break the string at any new line characters
                     String[] lines = textLine.split("\n");
@@ -308,41 +323,45 @@ public class QuestionFrame extends javax.swing.JFrame {
                 question = "BeforeLast";
                 GoButton.setText("Close");
             }
-            try {
-                BOption1.setSelected(false);
-                BOption1.setText("(A)  " + questionArray[2]);
-            } catch (Exception e) {
-                BOption1.setVisible(false);
-            }
-            try {
-                BOption2.setSelected(false);
-                BOption2.setText("(B)  " + questionArray[3]);
-            } catch (Exception e) {
-                BOption2.setVisible(false);
-            }
-            try {
-                BOption3.setSelected(false);
-                BOption3.setText("(C)  " + questionArray[4]);
-            } catch (Exception e) {
-                BOption3.setVisible(false);
-            }
-            try {
-                BOption4.setSelected(false);
-                BOption4.setText("(D)  " + questionArray[5]);
-            } catch (Exception e) {
-                BOption4.setVisible(false);
-            }
-            try {
-                BOption5.setSelected(false);
-                BOption5.setText("(E)  " + questionArray[6]);
-            } catch (Exception e) {
-                BOption5.setVisible(false);
-            }
+            
+            setupOption(BOption1, FOption1, "(A)", questionArray[2]);
+            setupOption(BOption2, FOption2, "(B)", questionArray[3]);
+            setupOption(BOption3, FOption3, "(C)", questionArray[4]);
+            setupOption(BOption4, FOption4, "(D)", questionArray[5]);
+            setupOption(BOption5, FOption5, "(E)", questionArray[6]);
 
 
             //finnally close the reader
             in.close();
         }
+    }
+    
+    // basically we get the option from the save file
+    // if it contains "__" it is editable so stick the text in their and make that editable visible
+    // else if it doesn't then stick the text in BOption checkbox
+    // otherwise if their is no question at all hide it
+    public void setupOption(JCheckBox boxPart, JTextField typePart, String letter, String arraySegment) {
+        String option = arraySegment; 
+        
+        if (arraySegment == null) {
+            // everything is hidden because there is no option
+            boxPart.setVisible(false);
+            typePart.setVisible(false);
+        } else if (arraySegment.contains("__")) {
+            option = arraySegment.substring(2); // remove the first two _ if it is a typing question
+            
+            // everything is left showing
+            boxPart.setSelected(false);
+            typePart.setText(option);
+            boxPart.setText(letter + "  ");
+            
+        } else {
+            // the typing part is hidden but the checkbox is left showing
+            typePart.setVisible(false);
+            boxPart.setSelected(false);
+            boxPart.setText(letter + "  " + option);
+        }
+        
     }
     
     // this runs all the extra functions i want that i cant put into the initComponents part of the form because
@@ -351,7 +370,7 @@ public class QuestionFrame extends javax.swing.JFrame {
         //get system variables
         if (!SystemUtils.IS_OS_WINDOWS) {
             pathway = SystemUtils.USER_HOME + "/Ques";
-            System.out.println("Home " + pathway);
+            // ****** System.out.printlnln("Home " + pathway);
         }
         
         Dimension size;
@@ -372,6 +391,9 @@ public class QuestionFrame extends javax.swing.JFrame {
         Container c2 = overwriteFileFrame.getContentPane();               
         c2.setBackground(Color.white);
         
+        Container c3 = areYouSureFrame.getContentPane();               
+        c3.setBackground(Color.white);
+        
         OVFyesButton.setContentAreaFilled(false);
         OVFyesButton.setBorderPainted(false);
         OVFyesButton.setFocusPainted(false);
@@ -381,6 +403,16 @@ public class QuestionFrame extends javax.swing.JFrame {
         OVFnoButton.setBorderPainted(false);
         OVFnoButton.setFocusPainted(false);
         OVFnoButton.setOpaque(false);
+        
+        RUSureYes.setContentAreaFilled(false);
+        RUSureYes.setBorderPainted(false);
+        RUSureYes.setFocusPainted(false);
+        RUSureYes.setOpaque(false);
+        
+        RUSureNo.setContentAreaFilled(false);
+        RUSureNo.setBorderPainted(false);
+        RUSureNo.setFocusPainted(false);
+        RUSureNo.setOpaque(false);
         
         ButtonReturn.setContentAreaFilled(false);
         ButtonReturn.setBorderPainted(false);
@@ -402,8 +434,97 @@ public class QuestionFrame extends javax.swing.JFrame {
         BOption4.setVisible(false);
         BOption4.setSelectedIcon(new ImageIcon(getClass().getResource("/resources/ball-green.png")));
         BOption5.setVisible(false);
-        BOption5.setSelectedIcon(new ImageIcon(getClass().getResource("/resources/ball-green.png")));
+        BOption5.setSelectedIcon(new ImageIcon(getClass().getResource("/resources/ball-green.png"))); 
+        FOption1.setVisible(false);
+        FOption2.setVisible(false);
+        FOption3.setVisible(false);
+        FOption4.setVisible(false);
+        FOption5.setVisible(false);  
+        
+        // Listen for changes in the text
+        FOption1.addFocusListener(new FocusListener() {
+
+            @Override
+            public void focusGained(FocusEvent e) {
+                // select all the text in focus
+                FOption1.select(0, FOption1.getText().length());
+                // check the box
+                BOption1.setSelected(true);
+                BOption1ActionPerformed(null);
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                FOption1.select(0, 0);
+            }
+        });// Listen for changes in the text
+        FOption2.addFocusListener(new FocusListener() {
+
+            @Override
+            public void focusGained(FocusEvent e) {
+                // select all the text in focus
+                FOption2.select(0, FOption2.getText().length());
+                // check the box
+                BOption2.setSelected(true);
+                BOption2ActionPerformed(null);
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                FOption2.select(0, 0);
+            }
+        });// Listen for changes in the text
+        FOption3.addFocusListener(new FocusListener() {
+
+            @Override
+            public void focusGained(FocusEvent e) {
+                // select all the text in focus
+                FOption3.select(0, FOption3.getText().length());
+                // check the box
+                BOption3.setSelected(true);
+                BOption3ActionPerformed(null);
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                FOption3.select(0, 0);
+            }
+        });// Listen for changes in the text
+        FOption4.addFocusListener(new FocusListener() {
+
+            @Override
+            public void focusGained(FocusEvent e) {
+                // select all the text in focus
+                FOption4.select(0, FOption4.getText().length());
+                // check the box
+                BOption4.setSelected(true);
+                BOption4ActionPerformed(null);
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                FOption4.select(0, 0);
+            }
+        });
+        // Listen for changes in the text
+        FOption5.addFocusListener(new FocusListener() {
+
+            @Override
+            public void focusGained(FocusEvent e) {
+                // select all the text in focus
+                FOption5.select(0, FOption5.getText().length());
+                // check the box
+                BOption5.setSelected(true);
+                BOption5ActionPerformed(null);
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                FOption5.select(0, 0);
+            }
+        });
     }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -418,12 +539,21 @@ public class QuestionFrame extends javax.swing.JFrame {
         OVFyesButton = new javax.swing.JButton();
         OVFnoButton = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
-        BOption1 = new javax.swing.JCheckBox();
+        areYouSureFrame = new javax.swing.JFrame();
+        jLabel6 = new javax.swing.JLabel();
+        RUSureYes = new javax.swing.JButton();
+        RUSureNo = new javax.swing.JButton();
         versionLabel = new javax.swing.JLabel();
         ErrorLabel = new javax.swing.JLabel();
         ButtonReturn = new javax.swing.JButton();
         GoButton = new javax.swing.JButton();
+        FOption1 = new javax.swing.JTextField();
+        FOption2 = new javax.swing.JTextField();
+        FOption3 = new javax.swing.JTextField();
+        FOption4 = new javax.swing.JTextField();
+        FOption5 = new javax.swing.JTextField();
         InputField = new javax.swing.JTextField();
+        BOption1 = new javax.swing.JCheckBox();
         BOption2 = new javax.swing.JCheckBox();
         BOption3 = new javax.swing.JCheckBox();
         BOption4 = new javax.swing.JCheckBox();
@@ -501,20 +631,69 @@ public class QuestionFrame extends javax.swing.JFrame {
                 .addContainerGap(183, Short.MAX_VALUE))
         );
 
+        jLabel6.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
+        jLabel6.setText("Would you like to exit this survey?");
+
+        RUSureYes.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/ballYes.png"))); // NOI18N
+        RUSureYes.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                RUSureYesMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                RUSureYesMouseExited(evt);
+            }
+        });
+        RUSureYes.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                RUSureYesActionPerformed(evt);
+            }
+        });
+
+        RUSureNo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/ballNo.png"))); // NOI18N
+        RUSureNo.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                RUSureNoMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                RUSureNoMouseExited(evt);
+            }
+        });
+        RUSureNo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                RUSureNoActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout areYouSureFrameLayout = new javax.swing.GroupLayout(areYouSureFrame.getContentPane());
+        areYouSureFrame.getContentPane().setLayout(areYouSureFrameLayout);
+        areYouSureFrameLayout.setHorizontalGroup(
+            areYouSureFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(areYouSureFrameLayout.createSequentialGroup()
+                .addGap(36, 36, 36)
+                .addGroup(areYouSureFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel6)
+                    .addGroup(areYouSureFrameLayout.createSequentialGroup()
+                        .addComponent(RUSureYes)
+                        .addGap(42, 42, 42)
+                        .addComponent(RUSureNo)))
+                .addContainerGap(30, Short.MAX_VALUE))
+        );
+        areYouSureFrameLayout.setVerticalGroup(
+            areYouSureFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(areYouSureFrameLayout.createSequentialGroup()
+                .addGap(23, 23, 23)
+                .addComponent(jLabel6)
+                .addGap(18, 18, 18)
+                .addGroup(areYouSureFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(RUSureNo)
+                    .addComponent(RUSureYes))
+                .addContainerGap(183, Short.MAX_VALUE))
+        );
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resources/Iconx32.gif")));
         setSize(new java.awt.Dimension(0, 0));
         getContentPane().setLayout(null);
-
-        BOption1.setFont(new java.awt.Font("SansSerif", 0, 10)); // NOI18N
-        BOption1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/ball-blue.png"))); // NOI18N
-        BOption1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                BOption1ActionPerformed(evt);
-            }
-        });
-        getContentPane().add(BOption1);
-        BOption1.setBounds(60, 390, 420, 30);
 
         versionLabel.setFont(new java.awt.Font("Arial", 0, 10)); // NOI18N
         versionLabel.setText("Copyright NathanSoftware.com version 2.0.6.1");
@@ -561,10 +740,56 @@ public class QuestionFrame extends javax.swing.JFrame {
         });
         getContentPane().add(GoButton);
         GoButton.setBounds(480, 480, 70, 60);
+
+        FOption1.setBackground(new Color(0,0,0,0));
+        FOption1.setFont(new java.awt.Font("Tahoma", 2, 11)); // NOI18N
+        FOption1.setText("enter text here");
+        FOption1.setBorder(null);
+        getContentPane().add(FOption1);
+        FOption1.setBounds(120, 390, 550, 30);
+
+        FOption2.setBackground(new Color(0,0,0,0));
+        FOption2.setFont(new java.awt.Font("Tahoma", 2, 11)); // NOI18N
+        FOption2.setText("enter text here");
+        FOption2.setBorder(null);
+        getContentPane().add(FOption2);
+        FOption2.setBounds(120, 420, 550, 30);
+
+        FOption3.setBackground(new Color(0,0,0,0));
+        FOption3.setFont(new java.awt.Font("Tahoma", 2, 11)); // NOI18N
+        FOption3.setText("enter text here");
+        FOption3.setBorder(null);
+        getContentPane().add(FOption3);
+        FOption3.setBounds(120, 450, 550, 30);
+
+        FOption4.setBackground(new Color(0,0,0,0));
+        FOption4.setFont(new java.awt.Font("Tahoma", 2, 11)); // NOI18N
+        FOption4.setText("enter text here");
+        FOption4.setBorder(null);
+        getContentPane().add(FOption4);
+        FOption4.setBounds(120, 480, 550, 30);
+
+        FOption5.setBackground(new Color(0,0,0,0));
+        FOption5.setFont(new java.awt.Font("Tahoma", 2, 11)); // NOI18N
+        FOption5.setText("enter text here");
+        FOption5.setBorder(null);
+        getContentPane().add(FOption5);
+        FOption5.setBounds(120, 510, 550, 30);
         getContentPane().add(InputField);
         InputField.setBounds(60, 390, 420, 30);
 
-        BOption2.setFont(new java.awt.Font("SansSerif", 0, 10)); // NOI18N
+        BOption1.setFont(new java.awt.Font("SansSerif", 0, 12)); // NOI18N
+        BOption1.setText("(A)");
+        BOption1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/ball-blue.png"))); // NOI18N
+        BOption1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                BOption1ActionPerformed(evt);
+            }
+        });
+        getContentPane().add(BOption1);
+        BOption1.setBounds(60, 390, 590, 30);
+
+        BOption2.setFont(new java.awt.Font("SansSerif", 0, 12)); // NOI18N
         BOption2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/ball-blue.png"))); // NOI18N
         BOption2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -572,9 +797,9 @@ public class QuestionFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(BOption2);
-        BOption2.setBounds(60, 420, 420, 30);
+        BOption2.setBounds(60, 420, 590, 30);
 
-        BOption3.setFont(new java.awt.Font("SansSerif", 0, 10)); // NOI18N
+        BOption3.setFont(new java.awt.Font("SansSerif", 0, 12)); // NOI18N
         BOption3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/ball-blue.png"))); // NOI18N
         BOption3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -582,9 +807,9 @@ public class QuestionFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(BOption3);
-        BOption3.setBounds(60, 450, 420, 30);
+        BOption3.setBounds(60, 450, 590, 30);
 
-        BOption4.setFont(new java.awt.Font("SansSerif", 0, 10)); // NOI18N
+        BOption4.setFont(new java.awt.Font("SansSerif", 0, 12)); // NOI18N
         BOption4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/ball-blue.png"))); // NOI18N
         BOption4.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -592,9 +817,9 @@ public class QuestionFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(BOption4);
-        BOption4.setBounds(60, 480, 420, 30);
+        BOption4.setBounds(60, 480, 590, 30);
 
-        BOption5.setFont(new java.awt.Font("SansSerif", 0, 10)); // NOI18N
+        BOption5.setFont(new java.awt.Font("SansSerif", 0, 12)); // NOI18N
         BOption5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/ball-blue.png"))); // NOI18N
         BOption5.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -602,7 +827,7 @@ public class QuestionFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(BOption5);
-        BOption5.setBounds(60, 510, 420, 30);
+        BOption5.setBounds(60, 510, 590, 30);
 
         QuestionLabel.setEditable(false);
         QuestionLabel.setBackground(new Color(0,0,0,0));
@@ -626,28 +851,28 @@ public class QuestionFrame extends javax.swing.JFrame {
     private void GoButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_GoButtonActionPerformed
         
         // reset font of the text fields (so that any that have been selected are now clearly no longer selected)
-        BOption1.setFont(new java.awt.Font("SansSerif", 0, 10)); // NOI18N
-        BOption2.setFont(new java.awt.Font("SansSerif", 0, 10)); // NOI18N
-        BOption3.setFont(new java.awt.Font("SansSerif", 0, 10)); // NOI18N
-        BOption4.setFont(new java.awt.Font("SansSerif", 0, 10)); // NOI18N
-        BOption5.setFont(new java.awt.Font("SansSerif", 0, 10)); // NOI18N
+        BOption1.setFont(new java.awt.Font("SansSerif", 0, 12)); // NOI18N
+        BOption2.setFont(new java.awt.Font("SansSerif", 0, 12)); // NOI18N
+        BOption3.setFont(new java.awt.Font("SansSerif", 0, 12)); // NOI18N
+        BOption4.setFont(new java.awt.Font("SansSerif", 0, 12)); // NOI18N
+        BOption5.setFont(new java.awt.Font("SansSerif", 0, 12)); // NOI18N
         
-        System.out.println("Go Button pressed");
+        // ****** System.out.printlnln("Go Button pressed");
         
         // if the user did something bad ;) then don't save right away but run some checks
         if (continueWithSave == false) {
             
-            System.out.println("Not continueing with save, yet");
+            // ****** System.out.printlnln("Not continueing with save, yet");
             
             userName = InputField.getText();
             
-            if (userName != null) { //if you type something in here (rather than leaving it blank and so null)
+            if (userNameCheck()) { //if the user name is valid
                 File saveFileName = new File(pathway + "/Save_" + userName + "_" + questionFileName + ".sur");
 
                 if (saveFileName.exists()) {
                     checkForOverwrite();
                 } else {
-                    System.out.println("Tested and their are no duplicates. Now continueing");
+                    // ****** System.out.printlnln("Tested and their are no duplicates. Now continueing");
                     continueWithSave = true;
 
                     checkForGo();
@@ -655,11 +880,11 @@ public class QuestionFrame extends javax.swing.JFrame {
             }
         }
         else {
-            System.out.println("Continueing with save, stage: " + question);
+            // ****** System.out.printlnln("Continueing with save, stage: " + question);
             
             userName = InputField.getText();
             
-            if (userName != null) { //if you type something in here (rather than leaving it blank and so null)
+            if (userNameCheck()) { //if the user name is valid
                 checkForGo();
             }
         }
@@ -667,16 +892,16 @@ public class QuestionFrame extends javax.swing.JFrame {
 
     private void BOption1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BOption1ActionPerformed
         // when you select this button it bolds the font to make it clear which is choosen
-        BOption1.setFont(new java.awt.Font("SansSerif", 1, 12));
+        BOption1.setFont(new java.awt.Font("SansSerif", 1, 14));
         if (BOption1.isEnabled() == true) {
             if (BOption1.isSelected() == false) {
                 BOption1.setSelected(true);
             } else {
                 // when you select this button it un-bolds the font of the rest to make it clear which is choosen
-                BOption2.setFont(new java.awt.Font("SansSerif", 0, 10));
-                BOption3.setFont(new java.awt.Font("SansSerif", 0, 10));
-                BOption4.setFont(new java.awt.Font("SansSerif", 0, 10));
-                BOption5.setFont(new java.awt.Font("SansSerif", 0, 10));
+                BOption2.setFont(new java.awt.Font("SansSerif", 0, 12));
+                BOption3.setFont(new java.awt.Font("SansSerif", 0, 12));
+                BOption4.setFont(new java.awt.Font("SansSerif", 0, 12));
+                BOption5.setFont(new java.awt.Font("SansSerif", 0, 12));
                 BOption2.setSelected(false);
                 BOption3.setSelected(false);
                 BOption4.setSelected(false);
@@ -688,16 +913,16 @@ public class QuestionFrame extends javax.swing.JFrame {
 
     private void BOption2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BOption2ActionPerformed
         // when you select this button it bolds the font to make it clear which is choosen
-        BOption2.setFont(new java.awt.Font("SansSerif", 1, 12));        
+        BOption2.setFont(new java.awt.Font("SansSerif", 1, 14));        
         if (BOption2.isEnabled() == true) {
             if (BOption2.isSelected() == false) {
                 BOption2.setSelected(true);
             } else {
                 // when you select this button it un-bolds the font of the rest to make it clear which is choosen
-                BOption1.setFont(new java.awt.Font("SansSerif", 0, 10));
-                BOption3.setFont(new java.awt.Font("SansSerif", 0, 10));
-                BOption4.setFont(new java.awt.Font("SansSerif", 0, 10));
-                BOption5.setFont(new java.awt.Font("SansSerif", 0, 10));
+                BOption1.setFont(new java.awt.Font("SansSerif", 0, 12));
+                BOption3.setFont(new java.awt.Font("SansSerif", 0, 12));
+                BOption4.setFont(new java.awt.Font("SansSerif", 0, 12));
+                BOption5.setFont(new java.awt.Font("SansSerif", 0, 12));
                 BOption1.setSelected(false);
                 BOption3.setSelected(false);
                 BOption4.setSelected(false);
@@ -709,16 +934,16 @@ public class QuestionFrame extends javax.swing.JFrame {
 
     private void BOption3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BOption3ActionPerformed
         // when you select this button it bolds the font to make it clear which is choosen
-        BOption3.setFont(new java.awt.Font("SansSerif", 1, 12));
+        BOption3.setFont(new java.awt.Font("SansSerif", 1, 14));
         if (BOption3.isEnabled() == true) {
             if (BOption3.isSelected() == false) {
                 BOption3.setSelected(true);
             } else {
                 // when you select this button it un-bolds the font of the rest to make it clear which is choosen
-                BOption1.setFont(new java.awt.Font("SansSerif", 0, 10));
-                BOption2.setFont(new java.awt.Font("SansSerif", 0, 10));
-                BOption4.setFont(new java.awt.Font("SansSerif", 0, 10));
-                BOption5.setFont(new java.awt.Font("SansSerif", 0, 10));
+                BOption1.setFont(new java.awt.Font("SansSerif", 0, 12));
+                BOption2.setFont(new java.awt.Font("SansSerif", 0, 12));
+                BOption4.setFont(new java.awt.Font("SansSerif", 0, 12));
+                BOption5.setFont(new java.awt.Font("SansSerif", 0, 12));
                 BOption1.setSelected(false);
                 BOption2.setSelected(false);
                 BOption4.setSelected(false);
@@ -730,16 +955,16 @@ public class QuestionFrame extends javax.swing.JFrame {
 
     private void BOption4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BOption4ActionPerformed
         // when you select this button it bolds the font to make it clear which is choosen
-        BOption4.setFont(new java.awt.Font("SansSerif", 1, 12));
+        BOption4.setFont(new java.awt.Font("SansSerif", 1, 14));
         if (BOption4.isEnabled() == true) {
             if (BOption4.isSelected() == false) {
                 BOption4.setSelected(true);
             } else {
                 // when you select this button it un-bolds the font of the rest to make it clear which is choosen
-                BOption1.setFont(new java.awt.Font("SansSerif", 0, 10));
-                BOption2.setFont(new java.awt.Font("SansSerif", 0, 10));
-                BOption3.setFont(new java.awt.Font("SansSerif", 0, 10));
-                BOption5.setFont(new java.awt.Font("SansSerif", 0, 10));
+                BOption1.setFont(new java.awt.Font("SansSerif", 0, 12));
+                BOption2.setFont(new java.awt.Font("SansSerif", 0, 12));
+                BOption3.setFont(new java.awt.Font("SansSerif", 0, 12));
+                BOption5.setFont(new java.awt.Font("SansSerif", 0, 12));
                 BOption1.setSelected(false);
                 BOption2.setSelected(false);
                 BOption3.setSelected(false);
@@ -752,15 +977,15 @@ public class QuestionFrame extends javax.swing.JFrame {
     private void BOption5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BOption5ActionPerformed
         if (BOption5.isEnabled() == true) {
             // when you select this button it bolds the font to make it clear which is choosen
-            BOption5.setFont(new java.awt.Font("SansSerif", 1, 12));
+            BOption5.setFont(new java.awt.Font("SansSerif", 1, 14));
             if (BOption5.isSelected() == false) {
                 BOption5.setSelected(true);
             } else {
                 // when you select this button it un-bolds the font of the rest to make it clear which is choosen
-                BOption2.setFont(new java.awt.Font("SansSerif", 0, 10));
-                BOption3.setFont(new java.awt.Font("SansSerif", 0, 10));
-                BOption4.setFont(new java.awt.Font("SansSerif", 0, 10));
-                BOption1.setFont(new java.awt.Font("SansSerif", 0, 10));
+                BOption2.setFont(new java.awt.Font("SansSerif", 0, 12));
+                BOption3.setFont(new java.awt.Font("SansSerif", 0, 12));
+                BOption4.setFont(new java.awt.Font("SansSerif", 0, 12));
+                BOption1.setFont(new java.awt.Font("SansSerif", 0, 12));
                 BOption1.setSelected(false);
                 BOption2.setSelected(false);
                 BOption3.setSelected(false);
@@ -812,7 +1037,19 @@ public class QuestionFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_ButtonReturnMouseExited
 
     private void ButtonReturnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonReturnActionPerformed
-        goToMainMenu();
+        // display the are you sure message
+        areYouSureFrame.dispose(); // first ensre there isn't already an active message
+        
+        areYouSureFrame.setVisible(true);
+        areYouSureFrame.setSize(279, 157);
+        areYouSureFrame.setResizable(false);
+        areYouSureFrame.setLocationRelativeTo(null);
+        
+        List<Image> icons = new ArrayList<>();
+        icons.add(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resources/Iconx16.png")));
+        icons.add(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resources/Iconx32.gif")));
+        icons.add(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resources/Iconx64.gif")));
+        areYouSureFrame.setIconImages(icons);
     }//GEN-LAST:event_ButtonReturnActionPerformed
 
     private void GoButtonMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_GoButtonMouseEntered
@@ -823,6 +1060,93 @@ public class QuestionFrame extends javax.swing.JFrame {
         GoButton.setIcon(new ImageIcon(getClass().getResource("/resources/nextIcon.jpg")));
     }//GEN-LAST:event_GoButtonMouseExited
 
+    private void RUSureYesMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_RUSureYesMouseEntered
+        RUSureYes.setIcon(new ImageIcon(getClass().getResource("/resources/ballYesSelected.png")));
+    }//GEN-LAST:event_RUSureYesMouseEntered
+
+    private void RUSureYesMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_RUSureYesMouseExited
+        RUSureYes.setIcon(new ImageIcon(getClass().getResource("/resources/ballYes.png")));
+    }//GEN-LAST:event_RUSureYesMouseExited
+
+    private void RUSureYesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RUSureYesActionPerformed
+        goToMainMenu();
+    }//GEN-LAST:event_RUSureYesActionPerformed
+
+    private void RUSureNoMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_RUSureNoMouseEntered
+        RUSureNo.setIcon(new ImageIcon(getClass().getResource("/resources/ballNoSelected.png")));
+    }//GEN-LAST:event_RUSureNoMouseEntered
+
+    private void RUSureNoMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_RUSureNoMouseExited
+        RUSureNo.setIcon(new ImageIcon(getClass().getResource("/resources/ballNo.png")));
+    }//GEN-LAST:event_RUSureNoMouseExited
+
+    private void RUSureNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RUSureNoActionPerformed
+        areYouSureFrame.dispose();
+    }//GEN-LAST:event_RUSureNoActionPerformed
+
+    public boolean userNameCheck() {
+        boolean continueNow = true;
+        
+        // check for illegal characters in the user name
+        if (userName.contains("\\")
+                | userName.contains("/")
+                | userName.contains(":")
+                | userName.contains("*")
+                | userName.contains("?")
+                | userName.contains("\"")
+                | userName.contains("<")
+                | userName.contains(">")
+                | userName.contains("|")
+                ) {
+
+            ErrorLabel.setText("A user name can't contain any of the following characters \\ / : * ? \" < > |");
+            ErrorLabel.setVisible(true);
+
+            // then wait for them to fix it and don't do anything
+            continueNow = false;
+        }
+        // check for a too long/too short user name
+        else if (userName.length() > 15) {
+            ErrorLabel.setText("A user name must be less than 15 characters, add initials instead of your full name");
+            ErrorLabel.setVisible(true);
+            
+            // then wait for them to fix it and don't do anything
+            continueNow = false;
+        }
+        // CHECK IF THE USER NAME IS NOT BLANK
+        else if (userName == null | userName.length() < 3) {
+            ErrorLabel.setText("A user name must be more than 3 characters");
+            ErrorLabel.setVisible(true);
+            
+            // then don't do anything
+            continueNow = false;
+        }
+        else {
+            // if it doesn't break on any of the other ones then we are good
+            
+            // CUSS WORD FILTER
+            // check for cuss words and delete them
+            // ****** System.out.printlnln("USERNAME NAME NAME: " + userName);
+
+            // replace all cuss words (Note: the Pattern.quote() function is used to ensure that the string doesn't have any problems when finished)
+            userName = userName.replaceAll("(?i)fuck", "");
+            userName = userName.replaceAll("(?i)shit", "");
+            userName = userName.replaceAll("(?i)piss", "");
+            userName = userName.replaceAll("(?i)cunt", "");
+            userName = userName.replaceAll("(?i)ass", "");
+            userName = userName.replaceAll("(?i)crap", "");
+            userName = userName.replaceAll("(?i)bitch", "");
+            userName = userName.replaceAll("(?i)cock", "");
+            userName = userName.replaceAll("(?i)penis", "");
+            userName = userName.replaceAll("(?i)sex", "");
+
+            // ****** System.out.printlnln("USERNAME NAME NAME: " + userName);
+        }
+        
+        return continueNow;
+    }
+    
+    
     public void setupProgressBar() {
         progressTotal = 1; // first reset it (it starts at 1 because there is a end screen)
         try {
@@ -845,7 +1169,7 @@ public class QuestionFrame extends javax.swing.JFrame {
                 }
             }
 
-            System.out.println("Prog: " + progressTotal);
+            // ****** System.out.printlnln("Prog: " + progressTotal);
 
             in.close();
         } catch (FileNotFoundException ex) {
@@ -864,6 +1188,9 @@ public class QuestionFrame extends javax.swing.JFrame {
     }
     
     public void goToMainMenu() {
+        // first ask if they are sure
+        
+        
         EasySurveyMenu ESF = new EasySurveyMenu();
         
         List<Image> icons = new ArrayList<>();
@@ -874,6 +1201,8 @@ public class QuestionFrame extends javax.swing.JFrame {
         
         ESF.setVisible(true);
         dispose();
+        
+        areYouSureFrame.dispose();
     }
     
     public void checkForOverwrite() {
@@ -896,33 +1225,56 @@ public class QuestionFrame extends javax.swing.JFrame {
         if (null != question) {
             progressCurrent ++; // increment the progress bar
             
+            // Once you begin (i.e click the arrow) then we remove the home button so you can't go back again
+            ButtonReturn.setVisible(false);
+            
             switch (question) {
 
                 case "Middle":
-                    String selectedBox = "";
                     StringBuilder saveFileLinesSB = new StringBuilder();
                     //when you click this button first it stores what box you've checked
                     if (BOption1.isSelected()) {
-                        selectedBox = "A";
+                        //selectedBox = "A";
                         QuestionAnswer = BOption1.getText();
+                        // if their is a text field being used then we get that text as well
+                        if (FOption1.isVisible()) {
+                            QuestionAnswer = BOption1.getText() + "__" + FOption1.getText(); // NOTE: we use the __ so we can remember it is a type-in-option
+                        }
                     } else if (BOption2.isSelected()) {
-                        selectedBox = "B";
+                        //selectedBox = "B";
                         QuestionAnswer = BOption2.getText();
+                        // if their is a text field being used then we get that text as well
+                        if (FOption2.isVisible()) {
+                            QuestionAnswer = BOption2.getText() + "__" + FOption2.getText(); // NOTE: we use the __ so we can remember it is a type-in-option
+                        }
                     } else if (BOption3.isSelected()) {
-                        selectedBox = "C";
+                        //selectedBox = "C";
                         QuestionAnswer = BOption3.getText();
+                        // if their is a text field being used then we get that text as well
+                        if (FOption3.isVisible()) {
+                            QuestionAnswer = BOption3.getText() + "__" + FOption3.getText(); // NOTE: we use the __ so we can remember it is a type-in-option
+                        }
                     } else if (BOption4.isSelected()) {
-                        selectedBox = "D";
+                        //selectedBox = "D";
                         QuestionAnswer = BOption4.getText();
+                        // if their is a text field being used then we get that text as well
+                        if (FOption4.isVisible()) {
+                            QuestionAnswer = BOption4.getText() + "__" + FOption4.getText(); // NOTE: we use the __ so we can remember it is a type-in-option
+                        }
                     } else if (BOption5.isSelected()) {
-                        selectedBox = "E";
+                        //selectedBox = "E";
                         QuestionAnswer = BOption5.getText();
+                        // if their is a text field being used then we get that text as well
+                        if (FOption5.isVisible()) {
+                            QuestionAnswer = BOption5.getText() + "__" + FOption5.getText(); // NOTE: we use the __ so we can remember it is a type-in-option
+                        }
                     } else { //if none are selected then don't continue
                         continueQues = false;
                     }   
                     
                     File saveFile = new File(pathway + "/Save_" + userName + "_" + questionFileName + ".sur");
 
+                    // if we have a valid selection then we continue and save the answer and increment
                     if (continueQues != false) {
 
                         BufferedReader newReader = null; //create a file reader (to read the file duh!)
@@ -931,23 +1283,25 @@ public class QuestionFrame extends javax.swing.JFrame {
 
                                 newReader = new BufferedReader(new FileReader(saveFile));
 
-                                //first read all the lines up to the line your on and store them in the string builder
+                                // Don't overwrite the answer to the previous questions
+                                // read all the lines up to the line you're on and store them in the string builder
                                 for (int i = 1; i < QuesNum; i++) {
                                     String line = newReader.readLine();
                                     saveFileLinesSB.append(line).append("\r\n");
                                 }
-                                newReader.close();
+                                newReader.close(); // kill the reader
                             }
                             else { //otherwise create a new file
                                 try {
                                     PrintWriter writer = new PrintWriter(saveFile, "UTF-8");
                                     writer.close();
                                 } catch (Exception e) {
-                                    System.out.println("Couldn't create a new file");
+                                    // ****** System.out.printlnln("Couldn't create a new file");
                                 }
                             }
                         } catch (Exception ex) {}
 
+                        // then get the current answer
                         String answerLetter = QuestionAnswer.substring(0, QuestionAnswer.indexOf(' '));
                         String answerString = (QuestionAnswer.substring(QuestionAnswer.indexOf(" ") + 1));
                         saveFileLinesSB.append(QuesNum).append("," + QuestionString).append("," + answerLetter).append("," + answerString).append("\r\n");
@@ -984,57 +1338,37 @@ public class QuestionFrame extends javax.swing.JFrame {
                 // THE FIRST LINE OF THE SURVEY ASKS THEIR NAME
                 // ----------
                 case "First":
-                    userName = InputField.getText();
-                    // check for illegal characters in the user name
-                    if (InputField.getText().contains("\\")
-                            | InputField.getText().contains("/")
-                            | InputField.getText().contains(":")
-                            | InputField.getText().contains("*")
-                            | InputField.getText().contains("?")
-                            | InputField.getText().contains("\"")
-                            | InputField.getText().contains("<")
-                            | InputField.getText().contains(">")
-                            | InputField.getText().contains("|")) {
+                    // for the initial question we then load the question file
+                    
+                    ErrorLabel.setText("");
 
-                        ErrorLabel.setText("A user name can't contain any of the following characters \\ / : * ? \" < > |");
-                        ErrorLabel.setVisible(true);
+                    if (continueWithSave == true) {
 
-                        // then don't do anything!
-                    }
+                        InputField.setVisible(false);
 
-                    else if (!"".equals(userName)) {
+                        BOption1.setVisible(true);
+                        BOption2.setVisible(true);
+                        BOption3.setVisible(true);
+                        BOption4.setVisible(true);
+                        BOption5.setVisible(true);
 
-                        ErrorLabel.setText("");
-
-                        if (continueWithSave == true) {
-
-                            InputField.setVisible(false);
-
-                            BOption1.setVisible(true);
-                            BOption2.setVisible(true);
-                            BOption3.setVisible(true);
-                            BOption4.setVisible(true);
-                            BOption5.setVisible(true);
-
-                            question = "Middle";
-                            System.out.println("Setting stage to middle!");
+                        question = "Middle";
+                        // ****** System.out.printlnln("Setting stage to middle!");
 
 
-                            // NOW IT TRYS TO READ ANOTHER QUESTION
-                            try {
-                                readQuestionFile(QuesNum);
-                            } catch (IOException ex) {
-                                Logger.getLogger(QuestionFrame.class.getName()).log(Level.SEVERE, null, ex);
-                            }
+                        // NOW IT TRYS TO READ ANOTHER QUESTION
+                        try {
+                            readQuestionFile(QuesNum);
+                        } catch (IOException ex) {
+                            Logger.getLogger(QuestionFrame.class.getName()).log(Level.SEVERE, null, ex);
                         }
                     }
-                    else { //if the user name is null then reset the variable
-                        continueWithSave = false;
-                        ErrorLabel.setText("Please type a name into the text field above");
-                        ErrorLabel.setVisible(true);
-                    }   break;
+                    
+                    
+                    break;
 
                 case "BeforeLast":
+                    // then now we end the survey giver and recreat the main menu
                     dispose();
                     EasySurveyMenu ESF = new EasySurveyMenu();
                     List<Image> icons = new ArrayList<>();
@@ -1095,14 +1429,23 @@ public class QuestionFrame extends javax.swing.JFrame {
     private javax.swing.JCheckBox BOption5;
     private javax.swing.JButton ButtonReturn;
     private javax.swing.JLabel ErrorLabel;
+    private javax.swing.JTextField FOption1;
+    private javax.swing.JTextField FOption2;
+    private javax.swing.JTextField FOption3;
+    private javax.swing.JTextField FOption4;
+    private javax.swing.JTextField FOption5;
     private javax.swing.JButton GoButton;
     private javax.swing.JTextField InputField;
     private javax.swing.JLabel MainPicture;
     private javax.swing.JButton OVFnoButton;
     private javax.swing.JButton OVFyesButton;
     private javax.swing.JTextPane QuestionLabel;
+    private javax.swing.JButton RUSureNo;
+    private javax.swing.JButton RUSureYes;
+    private javax.swing.JFrame areYouSureFrame;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JFrame overwriteFileFrame;
     private javax.swing.JProgressBar progressBar;
     private javax.swing.JLabel versionLabel;

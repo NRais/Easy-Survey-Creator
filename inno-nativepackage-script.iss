@@ -2,10 +2,11 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Easy Survey Creator"
-#define MyAppVersion "2.1.0"
+#define MyAppVersion "2.2.1"
 #define MyAppPublisher "Nathan Software"
 #define MyAppURL "http://www.nathansoftware.com/"
 #define MyAppExeName "Easy Survey Creator.exe"
+#define MyAppUSER "Commando"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
@@ -21,7 +22,7 @@ AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
 DefaultDirName={pf}\{#MyAppName}
 DisableProgramGroupPage=yes
-LicenseFile=C:\Users\Nuser\Documents\NetBeansProjects\CC BY-ND license.txt
+LicenseFile=C:\Users\Nuser\Documents\NetBeansProjects\EasySurveyCreator\CC BY-ND license ESC.txt
 InfoBeforeFile=C:\Users\Nuser\Documents\NetBeansProjects\EasySurveyCreator\#Readme\README {#MyAppVersion}.txt
 OutputDir=C:\Users\Nuser\Desktop
 OutputBaseFilename=EasySurveyCreator-setup-{#MyAppVersion}
@@ -36,12 +37,12 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "C:\Users\Nuser\AppData\Local\Easy Survey Creator\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Users\Nuser\AppData\Local\Easy Survey Creator\msvcp120.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Users\Nuser\AppData\Local\Easy Survey Creator\msvcr100.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Users\Nuser\AppData\Local\Easy Survey Creator\msvcr120.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Users\Nuser\AppData\Local\Easy Survey Creator\packager.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Users\Nuser\AppData\Local\Easy Survey Creator\resources\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "C:\Users\{#MyAppUSER}\AppData\Local\Easy Survey Creator\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\{#MyAppUSER}\AppData\Local\Easy Survey Creator\msvcp120.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\{#MyAppUSER}\AppData\Local\Easy Survey Creator\msvcr100.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\{#MyAppUSER}\AppData\Local\Easy Survey Creator\msvcr120.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\{#MyAppUSER}\AppData\Local\Easy Survey Creator\packager.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\{#MyAppUSER}\AppData\Local\Easy Survey Creator\resources\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]

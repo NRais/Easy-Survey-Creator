@@ -2,7 +2,7 @@
 ${licenseFirst}
 </#if>
 ${licensePrefix}Here comes the text of your license
-${licensePrefix} * Copyright 2017 Nathan Rais 
+${licensePrefix} * Copyright 2018 Nathan Rais 
 ${licensePrefix} * 
 ${licensePrefix} *      This file is part of The Easy Survey Creator.
 ${licensePrefix} *

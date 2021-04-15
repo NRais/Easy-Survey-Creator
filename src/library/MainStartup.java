@@ -34,11 +34,11 @@ import java.util.List;
  */
 public class MainStartup {
     
-    String version = "2.1.0"; //THIS REALLY!! SHOULD BE CHANGED EACH NEW VERSION
+    String version = "2.2.1"; //THIS REALLY!! SHOULD BE CHANGED EACH NEW VERSION
     
     // variables stored to tell the user when an updaet is coming
     static int yearPublished = 2018; 
-    static int monthPublished = 2;
+    static int monthPublished = 12;
     
     // !!!!! TODO
     //dumbly enough we have to change the format used depending on how many digits the monthPublished var has

@@ -9,7 +9,6 @@ import java.awt.Color;
 import java.awt.Container;
 import java.awt.Desktop;
 import java.awt.Dialog;
-import java.awt.Frame;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.MouseAdapter;
@@ -61,16 +60,20 @@ import org.apache.commons.lang3.SystemUtils;
 public class EasySurveyMenu extends javax.swing.JFrame {
 
     
-    Frame passCheckFrame = null;
+    String passCheckFrame = "";
     String password = "";
     static int monthsToUpdate = 6;
     
     String pathway = "C:\\Ques";
     
-    String defaultLines = pathway + "Default.csv\r\n/resources/Monkey.jpg\r\nDefault\r\nDefault\r\n/Documents";
+    String defaultLines = pathway + "/Default.csv\r\n/resources/Wizard.jpg\r\nDefault\r\nDefault\r\n/Documents";
     String defaultCSVFileLines = "1,How are you doing today?,Very Good, Okay, Not that good, Terrible\r\n";
     boolean correctPassword = false;
 
+    
+    public static Color highlightColor = Color.gray;
+    
+    
     // -- //
     MainStartup MS = new MainStartup();
     public String version = MS.version;
@@ -81,7 +84,7 @@ public class EasySurveyMenu extends javax.swing.JFrame {
     
     public void alreadyUpdateAsked() {
         alreadyUpdateAsk = true;
-        System.out.println("update asked changed to true it now is: " + alreadyUpdateAsk);
+        // ****** System.out.printlnln("update asked changed to true it now is: " + alreadyUpdateAsk);
     }
             
     int passTrys = 0;
@@ -95,9 +98,7 @@ public class EasySurveyMenu extends javax.swing.JFrame {
         
         Container cMain = this.getContentPane();               
         cMain.setBackground(Color.white);
-        
-        versionLabel.setText("Copyright NathanSoftware.com version " + version);
-        
+                
         this.setSize(720,510);
         this.setResizable(false);
         this.setLocationRelativeTo(null);
@@ -124,22 +125,21 @@ public class EasySurveyMenu extends javax.swing.JFrame {
         updateFrame.getRootPane().setDefaultButton(ButtonWebsiteUpdate);
         getPasswordFrame.getRootPane().setDefaultButton(GPcreateNewSurveyButton);
         
-        passwordFrame.setResizable(false);
-        passwordFrame.setLocationRelativeTo(null);
-        passwordFrame.setSize(371,183);
+        createPasswordFrame();
         
         passwordFrame.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
         
         getPasswordFrame.setResizable(false);
         getPasswordFrame.setLocationRelativeTo(null);
-        getPasswordFrame.setSize(371,193);
+        getPasswordFrame.setSize(371,210);
         
         getPasswordFrame.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
+        
+        versionLabel.setText("" + (char)67 + (char)111 + (char)112 + (char)121 + (char)114 + (char)105 + (char)103 + (char)104 + (char)116 + (char)32 + (char)78 + (char)97 + (char)116 + (char)104 + (char)97 + (char)110 + (char)83 + (char)111 + (char)102 + (char)116 + (char)119 + (char)97 + (char)114 + (char)101 + (char)46 + (char)99 + (char)111 + (char)109 + (char)32 + (char)118 + (char)101 + (char)114 + (char)115 + (char)105 + (char)111 + (char)110 + " " + version);
                               
         buttonBackRemoval(LicenseLabel);
         buttonBackRemoval(GPHelpButton);
-        buttonBackRemoval(PFnoButton1);
-        buttonBackRemoval(PFyesButton1);
+        buttonBackRemoval(PFgoButton);
         buttonBackRemoval(ButtonWebsiteUpdate);
         buttonBackRemoval(ButtonWebsite);
         buttonBackRemoval(ButtonConductSurvey);
@@ -151,8 +151,23 @@ public class EasySurveyMenu extends javax.swing.JFrame {
 
         prestart();
         
-        System.out.println("update asked? - " + alreadyUpdateAsk);
+        // ****** System.out.printlnln("update asked? - " + alreadyUpdateAsk);
         
+    }
+    
+    public void createPasswordFrame() {
+        passwordFrame.setResizable(false);
+        passwordFrame.setSize(440,193);
+        jLabel2.setSize(passwordFrame.getWidth(),jLabel2.getHeight());
+        PFgoButton.setSize(passwordFrame.getWidth(), PFgoButton.getHeight());
+
+        List<Image> icons = new ArrayList<>();
+        icons.add(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resources/Iconx16.png")));
+        icons.add(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resources/Iconx32.gif")));
+        icons.add(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resources/Iconx64.gif")));
+        passwordFrame.setIconImages(icons);
+
+        passwordFrame.setLocationRelativeTo(null);
     }
     
     public void buttonBackRemoval(JButton button) {
@@ -169,16 +184,13 @@ public class EasySurveyMenu extends javax.swing.JFrame {
         // otherwise we find the user's home directory and make a folder Ques there
         if (!SystemUtils.IS_OS_WINDOWS) {
             pathway = SystemUtils.USER_HOME + "/Ques";
-            System.out.println("Home " + pathway);
+            // ****** System.out.printlnln("Home " + pathway);
         }
-                
-        //setup default lines
-        defaultLines = pathway + "/Default.csv\r\n/resources/Monkey.jpg\r\nDefault\r\nDefault\r\n/Documents";
         
         /// FOR LOADING THE PASSWORD AND VERIFYING QUESLOAD ///
         BufferedReader read = null;
         try {
-            System.out.println("Trying to find quesload");
+            // ****** System.out.printlnln("Trying to find quesload");
             read = new BufferedReader(new FileReader(pathway + "/QuesLoad.txt"));
             
             //read the first three lines and skip
@@ -191,7 +203,7 @@ public class EasySurveyMenu extends javax.swing.JFrame {
         } catch (FileNotFoundException ex) {
             //if this happens there is no quesLoad file so make one
             //          *IF THERE IS NO QUESLOAD*
-            System.out.println("couldn't find quesload");
+            // ****** System.out.printlnln("couldn't find quesload");
             
             PrintWriter creator = null;
             try {
@@ -200,7 +212,7 @@ public class EasySurveyMenu extends javax.swing.JFrame {
 
                 creator = new PrintWriter(pathway + "/QuesLoad.txt", "UTF-8");
             } catch (Exception e) {
-                System.out.println("can't create quesload file.. no premissions");
+                // ****** System.out.printlnln("can't create quesload file.. no premissions");
             }
             creator.close();
             
@@ -213,14 +225,15 @@ public class EasySurveyMenu extends javax.swing.JFrame {
             }
             
         } catch (IOException ex) {
-            System.out.println("no fourth line");
+            // ****** System.out.printlnln("no fourth line");
             //if this happens there is no forth line
             Logger.getLogger(EasySurveyMenu.class.getName()).log(Level.SEVERE, null, ex);
         }
+                
         /// FOR DEFAULT CSV FILE ///
         BufferedReader readDefaultCSV = null;
         try {
-            System.out.println("Trying to find quesload");
+            // ****** System.out.printlnln("Trying to find quesload");
             readDefaultCSV = new BufferedReader(new FileReader(pathway + "/Default.csv"));
             
             //read the first line for posterity's sake :)
@@ -233,7 +246,7 @@ public class EasySurveyMenu extends javax.swing.JFrame {
             CreateDefaultCSV();
             
         } catch (IOException ex) {
-            System.out.println("No file Default.csv file obviously");
+            // ****** System.out.printlnln("No file Default.csv file obviously");
             //if this happens there is no line
             CreateDefaultCSV();
         }
@@ -243,7 +256,7 @@ public class EasySurveyMenu extends javax.swing.JFrame {
     public void CreateDefaultCSV() {
         //if this happens there is no default.csv file so make one
             //       *IF THERE IS NO DEFAULT CSV*
-            System.out.println("couldn't find default csv");
+            // ****** System.out.printlnln("couldn't find default csv");
             
             PrintWriter creator = null;
             try {
@@ -270,7 +283,7 @@ public class EasySurveyMenu extends javax.swing.JFrame {
         //first get current date
         SimpleDateFormat sdf = ourFormat; // this is the format we are importing (for example 22017 2month2017year
                 
-        System.out.println(new Date());
+        // ****** System.out.printlnln(new Date());
         
         // get the current date
         Date nowDate = new Date();
@@ -287,7 +300,7 @@ public class EasySurveyMenu extends javax.swing.JFrame {
         // but in order to read it we are going to write the date in a more logical way
         SimpleDateFormat finalDateFormater = new SimpleDateFormat("dd/MM/yyyy");
         
-        System.out.println("NOW: " + finalDateFormater.format(nowDate) + " + THEN: " + finalDateFormater.format(oldDate));
+        // ****** System.out.printlnln("NOW: " + finalDateFormater.format(nowDate) + " + THEN: " + finalDateFormater.format(oldDate));
         
         //spilt the date into its components to be read
         
@@ -296,8 +309,8 @@ public class EasySurveyMenu extends javax.swing.JFrame {
         int dateCurrentM = localDate.getMonthValue(); //this should be the month so store it as such
         int dateCurrentY = localDate.getYear(); //this should be the year so store it as such
     
-        System.out.println("Old Month: " + dateM);
-        System.out.println("Old Year: " + dateY);
+        // ****** System.out.printlnln("Old Month: " + dateM);
+        // ****** System.out.printlnln("Old Year: " + dateY);
         
         // ?-- UPDATE TIME --? //
         // now we calculate if it is time for an update
@@ -331,7 +344,7 @@ public class EasySurveyMenu extends javax.swing.JFrame {
         Container cU = updateFrame.getContentPane();               
         cU.setBackground(Color.white);
 
-        System.out.println("Showing update frame");
+        // ****** System.out.printlnln("Showing update frame");
         updateFrame.setLocationRelativeTo(ButtonCreateSurvey); // this is the centre
         updateFrame.setResizable(false);
         updateFrame.setSize(405,329);
@@ -362,9 +375,9 @@ public class EasySurveyMenu extends javax.swing.JFrame {
 
         passwordFrame = new javax.swing.JDialog();
         jLabel2 = new javax.swing.JLabel();
-        PFnoButton1 = new javax.swing.JButton();
-        PFyesButton1 = new javax.swing.JButton();
+        PFgoButton = new javax.swing.JButton();
         enterPassword1 = new javax.swing.JTextField();
+        jLabel4 = new javax.swing.JLabel();
         getPasswordFrame = new javax.swing.JDialog();
         GPHelpButton = new javax.swing.JButton();
         GPlabel = new javax.swing.JLabel();
@@ -375,6 +388,7 @@ public class EasySurveyMenu extends javax.swing.JFrame {
         jLabel3 = new javax.swing.JLabel();
         pictureLabel = new javax.swing.JLabel();
         ButtonWebsiteUpdate = new javax.swing.JButton();
+        androidLink = new javax.swing.JLabel();
         LicenseLabel = new javax.swing.JButton();
         versionLabel = new javax.swing.JLabel();
         LabelMain = new javax.swing.JLabel();
@@ -386,71 +400,62 @@ public class EasySurveyMenu extends javax.swing.JFrame {
         ButtonWebsite = new javax.swing.JButton();
         Background = new javax.swing.JLabel();
 
-        jLabel2.setFont(new java.awt.Font("Arial", 0, 11)); // NOI18N
+        passwordFrame.setTitle("Create a admin password");
+
+        jLabel2.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel2.setText("Would you like to set a password for the admin tools of this program?");
+        jLabel2.setText("Please create an admin password.");
 
-        PFnoButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/ballNo.png"))); // NOI18N
-        PFnoButton1.addMouseListener(new java.awt.event.MouseAdapter() {
+        PFgoButton.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        PFgoButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/menu/crystal-blue.png"))); // NOI18N
+        PFgoButton.setText("GO     ");
+        PFgoButton.setToolTipText("");
+        PFgoButton.setIconTextGap(-36);
+        PFgoButton.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                PFnoButton1MouseEntered(evt);
+                PFgoButtonMouseEntered(evt);
             }
             public void mouseExited(java.awt.event.MouseEvent evt) {
-                PFnoButton1MouseExited(evt);
+                PFgoButtonMouseExited(evt);
             }
         });
-        PFnoButton1.addActionListener(new java.awt.event.ActionListener() {
+        PFgoButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                PFnoButton1ActionPerformed(evt);
-            }
-        });
-
-        PFyesButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/ballYes.png"))); // NOI18N
-        PFyesButton1.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                PFyesButton1MouseEntered(evt);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                PFyesButton1MouseExited(evt);
-            }
-        });
-        PFyesButton1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                PFyesButton1ActionPerformed(evt);
+                PFgoButtonActionPerformed(evt);
             }
         });
 
         enterPassword1.setText("Enter password in this field");
         enterPassword1.setSelectionEnd(0);
 
+        jLabel4.setText("It is important to create a password so users cannot modify your surveys.");
+
         javax.swing.GroupLayout passwordFrameLayout = new javax.swing.GroupLayout(passwordFrame.getContentPane());
         passwordFrame.getContentPane().setLayout(passwordFrameLayout);
         passwordFrameLayout.setHorizontalGroup(
             passwordFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, passwordFrameLayout.createSequentialGroup()
-                .addGap(0, 40, Short.MAX_VALUE)
-                .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 360, javax.swing.GroupLayout.PREFERRED_SIZE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, passwordFrameLayout.createSequentialGroup()
-                .addGap(64, 64, 64)
-                .addGroup(passwordFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addComponent(enterPassword1)
-                    .addGroup(passwordFrameLayout.createSequentialGroup()
-                        .addComponent(PFyesButton1)
-                        .addGap(56, 56, 56)
-                        .addComponent(PFnoButton1)))
-                .addGap(70, 70, 70))
+            .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(passwordFrameLayout.createSequentialGroup()
+                .addContainerGap(91, Short.MAX_VALUE)
+                .addComponent(enterPassword1, javax.swing.GroupLayout.PREFERRED_SIZE, 224, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(85, 85, 85))
+            .addComponent(PFgoButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(passwordFrameLayout.createSequentialGroup()
+                .addGap(21, 21, 21)
+                .addComponent(jLabel4)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         passwordFrameLayout.setVerticalGroup(
             passwordFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(passwordFrameLayout.createSequentialGroup()
                 .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel4)
+                .addGap(8, 8, 8)
                 .addComponent(enterPassword1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(19, 19, 19)
-                .addGroup(passwordFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(PFyesButton1)
-                    .addComponent(PFnoButton1))
-                .addContainerGap(168, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addComponent(PFgoButton)
+                .addContainerGap(33, Short.MAX_VALUE))
         );
 
         getPasswordFrame.setBackground(new java.awt.Color(255, 255, 255));
@@ -480,7 +485,7 @@ public class EasySurveyMenu extends javax.swing.JFrame {
         getPassword.setSelectionEnd(0);
 
         GPcreateNewSurveyButton.setFont(new java.awt.Font("Arial", 0, 11)); // NOI18N
-        GPcreateNewSurveyButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/ball-blue.png"))); // NOI18N
+        GPcreateNewSurveyButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/menu/crystal-blue.png"))); // NOI18N
         GPcreateNewSurveyButton.setText("Continue");
         GPcreateNewSurveyButton.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
@@ -527,7 +532,7 @@ public class EasySurveyMenu extends javax.swing.JFrame {
                 .addComponent(getPassword, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(GPcreateNewSurveyButton)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 151, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(GPHelpButton)
                 .addContainerGap())
         );
@@ -543,7 +548,6 @@ public class EasySurveyMenu extends javax.swing.JFrame {
 
         ButtonWebsiteUpdate.setFont(new java.awt.Font("Tahoma", 2, 11)); // NOI18N
         ButtonWebsiteUpdate.setText("Click to download the newest version");
-        ButtonWebsiteUpdate.setToolTipText("");
         ButtonWebsiteUpdate.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 ButtonWebsiteUpdateMouseEntered(evt);
@@ -596,9 +600,23 @@ public class EasySurveyMenu extends javax.swing.JFrame {
         setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resources/Iconx32.gif")));
         getContentPane().setLayout(null);
 
+        androidLink.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/menu/Android.png"))); // NOI18N
+        androidLink.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                androidLinkMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                androidLinkMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                androidLinkMouseExited(evt);
+            }
+        });
+        getContentPane().add(androidLink);
+        androidLink.setBounds(600, 320, 100, 110);
+
         LicenseLabel.setFont(new java.awt.Font("Arial", 0, 10)); // NOI18N
-        LicenseLabel.setForeground(new java.awt.Color(102, 102, 102));
-        LicenseLabel.setText("This software and all of its components are copyrighted under the Creative Commons Attribution-NoDerivatives 4.0 License");
+        LicenseLabel.setText("" + (char)84 + (char)104 + (char)105 + (char)115 + (char)32 + (char)115 + (char)111 + (char)102 + (char)116 + (char)119 + (char)97 + (char)114 + (char)101 + (char)32 + (char)97 + (char)110 + (char)100 + (char)32 + (char)97 + (char)108 + (char)108 + (char)32 + (char)111 + (char)102 + (char)32 + (char)105 + (char)116 + (char)115 + (char)32 + (char)99 + (char)111 + (char)109 + (char)112 + (char)111 + (char)110 + (char)101 + (char)110 + (char)116 + (char)115 + (char)32 + (char)97 + (char)114 + (char)101 + (char)32 + (char)99 + (char)111 + (char)112 + (char)121 + (char)114 + (char)105 + (char)103 + (char)104 + (char)116 + (char)101 + (char)100 + (char)32 + (char)117 + (char)110 + (char)100 + (char)101 + (char)114 + (char)32 + (char)116 + (char)104 + (char)101 + (char)32 + (char)67 + (char)114 + (char)101 + (char)97 + (char)116 + (char)105 + (char)118 + (char)101 + (char)32 + (char)67 + (char)111 + (char)109 + (char)109 + (char)111 + (char)110 + (char)115 + (char)32 + (char)65 + (char)116 + (char)116 + (char)114 + (char)105 + (char)98 + (char)117 + (char)116 + (char)105 + (char)111 + (char)110 + (char)45 + (char)78 + (char)111 + (char)68 + (char)101 + (char)114 + (char)105 + (char)118 + (char)97 + (char)116 + (char)105 + (char)118 + (char)101 + (char)115 + (char)32 + (char)52 + (char)46 + (char)48 + (char)32 + (char)76 + (char)105 + (char)99 + (char)101 + (char)110 + (char)115 + (char)101);
         LicenseLabel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 LicenseLabelMouseClicked(evt);
@@ -614,9 +632,9 @@ public class EasySurveyMenu extends javax.swing.JFrame {
         LicenseLabel.setBounds(20, 440, 660, 21);
 
         versionLabel.setFont(new java.awt.Font("Arial", 0, 10)); // NOI18N
-        versionLabel.setText("Copyright NathanSoftware.com version XXXX");
+        versionLabel.setText("Copyright NathanSoftware.com version 2.2");
         getContentPane().add(versionLabel);
-        versionLabel.setBounds(483, 60, 220, 14);
+        versionLabel.setBounds(463, 60, 240, 14);
 
         LabelMain.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/MainLabelSml.png"))); // NOI18N
         getContentPane().add(LabelMain);
@@ -628,8 +646,9 @@ public class EasySurveyMenu extends javax.swing.JFrame {
         LabelTT.setBounds(390, 190, 109, 19);
 
         ButtonAnalyseData.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
-        ButtonAnalyseData.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/ball-teal.png"))); // NOI18N
+        ButtonAnalyseData.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/menu/crystal-blue.png"))); // NOI18N
         ButtonAnalyseData.setText("Analyse Data");
+        ButtonAnalyseData.setToolTipText("View the results of your surveys");
         ButtonAnalyseData.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         ButtonAnalyseData.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
@@ -645,11 +664,12 @@ public class EasySurveyMenu extends javax.swing.JFrame {
             }
         });
         getContentPane().add(ButtonAnalyseData);
-        ButtonAnalyseData.setBounds(470, 100, 160, 40);
+        ButtonAnalyseData.setBounds(470, 100, 190, 50);
 
         ButtonCreateSurvey.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
-        ButtonCreateSurvey.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/ball-blue.png"))); // NOI18N
+        ButtonCreateSurvey.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/menu/crystal-purple.png"))); // NOI18N
         ButtonCreateSurvey.setText("Create Survey");
+        ButtonCreateSurvey.setToolTipText("Manage your surveys");
         ButtonCreateSurvey.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         ButtonCreateSurvey.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
@@ -665,11 +685,12 @@ public class EasySurveyMenu extends javax.swing.JFrame {
             }
         });
         getContentPane().add(ButtonCreateSurvey);
-        ButtonCreateSurvey.setBounds(80, 100, 170, 40);
+        ButtonCreateSurvey.setBounds(80, 100, 200, 50);
 
         ButtonConductSurvey.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
-        ButtonConductSurvey.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/ball-green.png"))); // NOI18N
+        ButtonConductSurvey.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/menu/crystal-green.png"))); // NOI18N
         ButtonConductSurvey.setText("Conduct Survey");
+        ButtonConductSurvey.setToolTipText("Give the current assigned survey");
         ButtonConductSurvey.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         ButtonConductSurvey.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
@@ -685,11 +706,11 @@ public class EasySurveyMenu extends javax.swing.JFrame {
             }
         });
         getContentPane().add(ButtonConductSurvey);
-        ButtonConductSurvey.setBounds(270, 100, 180, 40);
+        ButtonConductSurvey.setBounds(270, 100, 210, 50);
 
         ButtonHelp.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
-        ButtonHelp.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/ball-magenta.png"))); // NOI18N
-        ButtonHelp.setText(" Help");
+        ButtonHelp.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/menu/crystal-red.png"))); // NOI18N
+        ButtonHelp.setText("" + (char)32 + (char)72 + (char)101 + (char)108 + (char)112);
         ButtonHelp.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         ButtonHelp.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
@@ -705,11 +726,10 @@ public class EasySurveyMenu extends javax.swing.JFrame {
             }
         });
         getContentPane().add(ButtonHelp);
-        ButtonHelp.setBounds(80, 210, 110, 40);
+        ButtonHelp.setBounds(80, 200, 170, 50);
 
         ButtonWebsite.setFont(new java.awt.Font("Arial", 2, 11)); // NOI18N
-        ButtonWebsite.setText("Visit NathansSoftware.com");
-        ButtonWebsite.setToolTipText("Click to visit the website NathansSoftware.con");
+        ButtonWebsite.setText("" + (char)86 + (char)105 + (char)115 + (char)105 + (char)116 + (char)32 + (char)78 + (char)97 + (char)116 + (char)104 + (char)97 + (char)110 + (char)115 + (char)111 + (char)102 + (char)116 + (char)119 + (char)97 + (char)114 + (char)101 + (char)46 + (char)99 + (char)111 + (char)109);
         ButtonWebsite.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 ButtonWebsiteMouseEntered(evt);
@@ -735,39 +755,39 @@ public class EasySurveyMenu extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void ButtonCreateSurveyMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ButtonCreateSurveyMouseEntered
-        ButtonCreateSurvey.setForeground(Color.CYAN);
-        ButtonCreateSurvey.setIcon(new ImageIcon(getClass().getResource("/resources/ball-blueSelected.png")));
+        ButtonCreateSurvey.setForeground(highlightColor);
+        ButtonCreateSurvey.setIcon(new ImageIcon(getClass().getResource("/resources/menu/crystal-purpleSelected.png")));
     }//GEN-LAST:event_ButtonCreateSurveyMouseEntered
 
     private void ButtonCreateSurveyMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ButtonCreateSurveyMouseExited
         ButtonCreateSurvey.setForeground(null);
-        ButtonCreateSurvey.setIcon(new ImageIcon(getClass().getResource("/resources/ball-blue.png")));
+        ButtonCreateSurvey.setIcon(new ImageIcon(getClass().getResource("/resources/menu/crystal-purple.png")));
     }//GEN-LAST:event_ButtonCreateSurveyMouseExited
 
     private void ButtonAnalyseDataMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ButtonAnalyseDataMouseEntered
-        ButtonAnalyseData.setForeground(Color.CYAN);
-        ButtonAnalyseData.setIcon(new ImageIcon(getClass().getResource("/resources/ball-tealSelected.png")));
+        ButtonAnalyseData.setForeground(highlightColor);
+        ButtonAnalyseData.setIcon(new ImageIcon(getClass().getResource("/resources/menu/crystal-blueSelected.png")));
     }//GEN-LAST:event_ButtonAnalyseDataMouseEntered
 
     private void ButtonAnalyseDataMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ButtonAnalyseDataMouseExited
         ButtonAnalyseData.setForeground(null);
-        ButtonAnalyseData.setIcon(new ImageIcon(getClass().getResource("/resources/ball-teal.png")));
+        ButtonAnalyseData.setIcon(new ImageIcon(getClass().getResource("/resources/menu/crystal-blue.png")));
     }//GEN-LAST:event_ButtonAnalyseDataMouseExited
 
     private void ButtonHelpMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ButtonHelpMouseEntered
-        ButtonHelp.setForeground(Color.CYAN);
-        ButtonHelp.setIcon(new ImageIcon(getClass().getResource("/resources/ball-magentaSelected.png")));
+        ButtonHelp.setForeground(highlightColor);
+        ButtonHelp.setIcon(new ImageIcon(getClass().getResource("/resources/menu/crystal-redSelected.png")));
     }//GEN-LAST:event_ButtonHelpMouseEntered
 
     private void ButtonHelpMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ButtonHelpMouseExited
         ButtonHelp.setForeground(null);
-        ButtonHelp.setIcon(new ImageIcon(getClass().getResource("/resources/ball-magenta.png")));
+        ButtonHelp.setIcon(new ImageIcon(getClass().getResource("/resources/menu/crystal-red.png")));
     }//GEN-LAST:event_ButtonHelpMouseExited
 
     private void ButtonHelpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonHelpActionPerformed
         URI domain = null;
         try {
-            domain = new URI("http://nathansoftware.com/wordpress/easy-survey-creator-manual/"); //launches the default help page
+            domain = new URI("" + (char)104 + (char)116 + (char)116 + (char)112 + (char)58 + (char)47 + (char)47 + (char)119 + (char)119 + (char)119 + (char)46 + (char)110 + (char)97 + (char)116 + (char)104 + (char)97 + (char)110 + (char)115 + (char)111 + (char)102 + (char)116 + (char)119 + (char)97 + (char)114 + (char)101 + (char)46 + (char)99 + (char)111 + (char)109 + (char)47 + (char)119 + (char)111 + (char)114 + (char)100 + (char)112 + (char)114 + (char)101 + (char)115 + (char)115 + (char)47 + (char)101 + (char)97 + (char)115 + (char)121 + (char)45 + (char)115 + (char)117 + (char)114 + (char)118 + (char)101 + (char)121 + (char)45 + (char)99 + (char)114 + (char)101 + (char)97 + (char)116 + (char)111 + (char)114 + (char)45 + (char)109 + (char)97 + (char)110 + (char)117 + (char)97 + (char)108 + (char)47); //launches the default help page
         } catch (URISyntaxException ex) {
             Logger.getLogger(EasySurveyMenu.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -775,17 +795,17 @@ public class EasySurveyMenu extends javax.swing.JFrame {
     }//GEN-LAST:event_ButtonHelpActionPerformed
 
     private void ButtonConductSurveyMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ButtonConductSurveyMouseEntered
-        ButtonConductSurvey.setForeground(Color.CYAN);
-        ButtonConductSurvey.setIcon(new ImageIcon(getClass().getResource("/resources/ball-greenSelected.png")));
+        ButtonConductSurvey.setForeground(highlightColor);
+        ButtonConductSurvey.setIcon(new ImageIcon(getClass().getResource("/resources/menu/crystal-greenSelected.png")));
     }//GEN-LAST:event_ButtonConductSurveyMouseEntered
 
     private void ButtonConductSurveyMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ButtonConductSurveyMouseExited
         ButtonConductSurvey.setForeground(null);
-        ButtonConductSurvey.setIcon(new ImageIcon(getClass().getResource("/resources/ball-green.png")));
+        ButtonConductSurvey.setIcon(new ImageIcon(getClass().getResource("/resources/menu/crystal-green.png")));
     }//GEN-LAST:event_ButtonConductSurveyMouseExited
 
     private void ButtonWebsiteMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ButtonWebsiteMouseEntered
-        ButtonWebsite.setForeground(Color.CYAN);
+        ButtonWebsite.setForeground(highlightColor);
     }//GEN-LAST:event_ButtonWebsiteMouseEntered
 
     private void ButtonWebsiteMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ButtonWebsiteMouseExited
@@ -795,7 +815,7 @@ public class EasySurveyMenu extends javax.swing.JFrame {
     private void ButtonWebsiteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonWebsiteActionPerformed
         URI domain = null;
         try {
-            domain = new URI("http://nathansoftware.com/wordpress/"); //launches the website
+            domain = new URI("" + (char)104 + (char)116 + (char)116 + (char)112 + (char)58 + (char)47 + (char)47 + (char)119 + (char)119 + (char)119 + (char)46 + (char)78 + (char)97 + (char)116 + (char)104 + (char)97 + (char)110 + (char)115 + (char)111 + (char)102 + (char)116 + (char)119 + (char)97 + (char)114 + (char)101 + (char)46 + (char)99 + (char)111 + (char)109); //launches the website
         } catch (URISyntaxException ex) {
             Logger.getLogger(EasySurveyMenu.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -803,32 +823,18 @@ public class EasySurveyMenu extends javax.swing.JFrame {
     }//GEN-LAST:event_ButtonWebsiteActionPerformed
 
     private void ButtonCreateSurveyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonCreateSurveyActionPerformed
-        CreationFrame CF = new CreationFrame();
         
         
-        List<Image> icons = new ArrayList<>();
-        icons.add(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resources/Iconx16.png")));
-        icons.add(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resources/Iconx32.gif")));
-        icons.add(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resources/Iconx64.gif")));
-        CF.setIconImages(icons);
-        
-        passCheckFrame = CF;
+        passCheckFrame = "CF";
                 
-        adminPassCheck(passCheckFrame);        
+        adminPassCheck();        
     }//GEN-LAST:event_ButtonCreateSurveyActionPerformed
     
     private void ButtonAnalyseDataActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonAnalyseDataActionPerformed
-        AnswerFrame AF = new AnswerFrame();
         
-        List<Image> icons = new ArrayList<>();
-        icons.add(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resources/Iconx16.png")));
-        icons.add(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resources/Iconx32.gif")));
-        icons.add(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resources/Iconx64.gif")));
-        AF.setIconImages(icons);
+        passCheckFrame = "AF";
         
-        passCheckFrame = AF;
-        
-        adminPassCheck(passCheckFrame);
+        adminPassCheck();
     }//GEN-LAST:event_ButtonAnalyseDataActionPerformed
 
     private void ButtonConductSurveyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonConductSurveyActionPerformed
@@ -842,50 +848,42 @@ public class EasySurveyMenu extends javax.swing.JFrame {
         
         QF.setVisible(true);
         
-        this.setVisible(false); //hide the original frame
+        this.dispose(); //hide the original frame
     }//GEN-LAST:event_ButtonConductSurveyActionPerformed
                                        
-
-    private void PFnoButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PFnoButton1ActionPerformed
-        correctPassword = true; //you know the password when this is true it doesn't bother you by asking for it
-
-        setPassword(false); //sets the password to null
-
-        passwordFrame.dispose(); //then close the frame
-    }//GEN-LAST:event_PFnoButton1ActionPerformed
                                     
-
-    private void PFnoButton1MouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_PFnoButton1MouseExited
-        PFnoButton1.setIcon(new ImageIcon(getClass().getResource("/resources/ballNo.png")));
-    }//GEN-LAST:event_PFnoButton1MouseExited
-
-    private void PFnoButton1MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_PFnoButton1MouseEntered
-        PFnoButton1.setIcon(new ImageIcon(getClass().getResource("/resources/ballNoSelected.png")));
-    }//GEN-LAST:event_PFnoButton1MouseEntered
                                                                              
 
-    private void PFyesButton1MouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_PFyesButton1MouseExited
-        PFyesButton1.setIcon(new ImageIcon(getClass().getResource("/resources/ballYes.png")));
-    }//GEN-LAST:event_PFyesButton1MouseExited
+    private void PFgoButtonMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_PFgoButtonMouseExited
+        PFgoButton.setForeground(null);
+        PFgoButton.setIcon(new ImageIcon(getClass().getResource("/resources/menu/crystal-blue.png")));
+    }//GEN-LAST:event_PFgoButtonMouseExited
 
-    private void PFyesButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PFyesButton1ActionPerformed
+    private void PFgoButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PFgoButtonActionPerformed
         if ("Enter password in this field".equals(enterPassword1.getText()) | "".equals(enterPassword1.getText())) { //if it still says the enter password text or says nothing text then dont continue
             enterPassword1.setText("");
         } else {
-        password = enterPassword1.getText(); //first store password
+            password = enterPassword1.getText(); //first store password
 
-        setPassword(true); //then save password
+            setPassword(true); //then save password
 
-        correctPassword = true; //then record that you know the password
+            correctPassword = true; //then record that you know the password
 
-        //then close the window
-        passwordFrame.dispose();
+            //then close the window
+            passwordFrame.dispose();
+            
+            
+            // then launch the frame you wanted it to
+            startChoosenFrame();
+        
+            this.dispose(); //hide the original frame
         }
-    }//GEN-LAST:event_PFyesButton1ActionPerformed
+    }//GEN-LAST:event_PFgoButtonActionPerformed
 
-    private void PFyesButton1MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_PFyesButton1MouseEntered
-        PFyesButton1.setIcon(new ImageIcon(getClass().getResource("/resources/ballYesSelected.png")));
-    }//GEN-LAST:event_PFyesButton1MouseEntered
+    private void PFgoButtonMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_PFgoButtonMouseEntered
+        PFgoButton.setForeground(highlightColor);
+        PFgoButton.setIcon(new ImageIcon(getClass().getResource("/resources/menu/crystal-blueSelected.png")));
+    }//GEN-LAST:event_PFgoButtonMouseEntered
 
     private void GPHelpButtonMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_GPHelpButtonMouseEntered
         GPHelpButton.setIcon(new ImageIcon(getClass().getResource("/resources/helpIconSelected.jpg")));
@@ -898,7 +896,7 @@ public class EasySurveyMenu extends javax.swing.JFrame {
     private void GPHelpButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_GPHelpButtonActionPerformed
         URI domain = null;
         try {
-            domain = new URI("http://nathansoftware.com/wordpress/easy-survey-creator-manual/"); //launches the password help window
+            domain = new URI("" + (char)104 + (char)116 + (char)116 + (char)112 + (char)58 + (char)47 + (char)47 + (char)119 + (char)119 + (char)119 + (char)46 + (char)110 + (char)97 + (char)116 + (char)104 + (char)97 + (char)110 + (char)115 + (char)111 + (char)102 + (char)116 + (char)119 + (char)97 + (char)114 + (char)101 + (char)46 + (char)99 + (char)111 + (char)109 + (char)47 + (char)119 + (char)111 + (char)114 + (char)100 + (char)112 + (char)114 + (char)101 + (char)115 + (char)115 + (char)47 + (char)101 + (char)97 + (char)115 + (char)121 + (char)45 + (char)115 + (char)117 + (char)114 + (char)118 + (char)101 + (char)121 + (char)45 + (char)99 + (char)114 + (char)101 + (char)97 + (char)116 + (char)111 + (char)114 + (char)45 + (char)109 + (char)97 + (char)110 + (char)117 + (char)97 + (char)108 + (char)47); //launches the password help window
         } catch (URISyntaxException ex) {
             Logger.getLogger(EasySurveyMenu.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -906,11 +904,11 @@ public class EasySurveyMenu extends javax.swing.JFrame {
     }//GEN-LAST:event_GPHelpButtonActionPerformed
 
     private void GPcreateNewSurveyButtonMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_GPcreateNewSurveyButtonMouseEntered
-        GPcreateNewSurveyButton.setIcon(new ImageIcon(getClass().getResource("/resources/ball-blueSelected.png")));
+        GPcreateNewSurveyButton.setIcon(new ImageIcon(getClass().getResource("/resources/menu/crystal-blueSelected.png")));
     }//GEN-LAST:event_GPcreateNewSurveyButtonMouseEntered
 
     private void GPcreateNewSurveyButtonMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_GPcreateNewSurveyButtonMouseExited
-        GPcreateNewSurveyButton.setIcon(new ImageIcon(getClass().getResource("/resources/ball-blue.png")));
+        GPcreateNewSurveyButton.setIcon(new ImageIcon(getClass().getResource("/resources/menu/crystal-blue.png")));
     }//GEN-LAST:event_GPcreateNewSurveyButtonMouseExited
 
     private void GPcreateNewSurveyButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_GPcreateNewSurveyButtonActionPerformed
@@ -920,7 +918,7 @@ public class EasySurveyMenu extends javax.swing.JFrame {
 
             //then run the password check
             //and since the passwords already been verified  then it should launch
-            adminPassCheck(passCheckFrame);
+            adminPassCheck();
         }
         else { //if you got it wrong then tell you you've got it wrong
             GPlabel.setText("Incorrect Password, try again.");
@@ -933,7 +931,7 @@ public class EasySurveyMenu extends javax.swing.JFrame {
     }//GEN-LAST:event_GPcreateNewSurveyButtonActionPerformed
 
     private void ButtonWebsiteUpdateMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ButtonWebsiteUpdateMouseEntered
-        ButtonWebsiteUpdate.setForeground(Color.CYAN);
+        ButtonWebsiteUpdate.setForeground(highlightColor);
     }//GEN-LAST:event_ButtonWebsiteUpdateMouseEntered
 
     private void ButtonWebsiteUpdateMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ButtonWebsiteUpdateMouseExited
@@ -943,7 +941,7 @@ public class EasySurveyMenu extends javax.swing.JFrame {
     private void ButtonWebsiteUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonWebsiteUpdateActionPerformed
         URI domain = null;
         try {
-            domain = new URI("http://nathansoftware.com/wordpress/easy-survey-creator-2/"); //launches the website
+            domain = new URI("" + (char)104 + (char)116 + (char)116 + (char)112 + (char)58 + (char)47 + (char)47 + (char)119 + (char)119 + (char)119 + (char)46 + (char)78 + (char)97 + (char)116 + (char)104 + (char)97 + (char)110 + (char)115 + (char)111 + (char)102 + (char)116 + (char)119 + (char)97 + (char)114 + (char)101 + (char)46 + (char)99 + (char)111 + (char)109 + (char)47 + (char)101 + (char)97 + (char)115 + (char)121 + (char)45 + (char)115 + (char)117 + (char)114 + (char)118 + (char)101 + (char)121 + (char)45 + (char)99 + (char)114 + (char)101 + (char)97 + (char)116 + (char)111 + (char)114 + (char)45 + (char)50 + (char)47); //launches the website
         } catch (URISyntaxException ex) {
             Logger.getLogger(EasySurveyMenu.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -963,18 +961,64 @@ public class EasySurveyMenu extends javax.swing.JFrame {
     }//GEN-LAST:event_LicenseLabelMouseClicked
 
     private void LicenseLabelMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_LicenseLabelMouseEntered
-        LicenseLabel.setForeground(Color.CYAN);
+        LicenseLabel.setForeground(highlightColor);
     }//GEN-LAST:event_LicenseLabelMouseEntered
 
     private void LicenseLabelMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_LicenseLabelMouseExited
-        LicenseLabel.setForeground(new Color(102,102,102));
+        LicenseLabel.setForeground(null);
     }//GEN-LAST:event_LicenseLabelMouseExited
+
+    private void androidLinkMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_androidLinkMouseClicked
+        URI domain = null;
+        try {
+            domain = new URI("http://nathansoftware.com/wordpress/easy-survey-creator-downloads/"); //launches the password help window
+        } catch (URISyntaxException ex) {
+            Logger.getLogger(EasySurveyMenu.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        openWebpage(domain);    
+    }//GEN-LAST:event_androidLinkMouseClicked
+
+    private void androidLinkMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_androidLinkMouseEntered
+        androidLink.setIcon(new ImageIcon(getClass().getResource("/resources/menu/AndroidSelected.png")));
+    }//GEN-LAST:event_androidLinkMouseEntered
+
+    private void androidLinkMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_androidLinkMouseExited
+        androidLink.setIcon(new ImageIcon(getClass().getResource("/resources/menu/Android.png")));
+    }//GEN-LAST:event_androidLinkMouseExited
+    
+    public void startChoosenFrame() {
+        if ("CF".equals(passCheckFrame)) {
+            CreationFrame CF = new CreationFrame();
+
+
+            List<Image> icons = new ArrayList<>();
+            icons.add(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resources/Iconx16.png")));
+            icons.add(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resources/Iconx32.gif")));
+            icons.add(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resources/Iconx64.gif")));
+            CF.setIconImages(icons);
+            
+            CF.setVisible(true);
+            CF.initialize();
+            
+        } else if ("AF".equals(passCheckFrame)) {
+        
+            AnswerFrame AF = new AnswerFrame();
+
+            List<Image> icons = new ArrayList<>();
+            icons.add(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resources/Iconx16.png")));
+            icons.add(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resources/Iconx32.gif")));
+            icons.add(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resources/Iconx64.gif")));
+            AF.setIconImages(icons);
+            
+            AF.setVisible(true);
+        }
+    }
     
     
-    public void adminPassCheck(Frame jframe) {
+    public void adminPassCheck() {
         BufferedReader read = null;
         try {
-            System.out.println("Trying to find quesload");
+            // ****** System.out.printlnln("Trying to find quesload");
             read = new BufferedReader(new FileReader(pathway + "/QuesLoad.txt"));
             
             //read the first three lines and skip
@@ -987,7 +1031,7 @@ public class EasySurveyMenu extends javax.swing.JFrame {
         } catch (FileNotFoundException ex) {
             //if this happens there is no quesLoad file so make one
             //          *IF THERE IS NO QUESLOAD*
-            System.out.println("couldn't find quesload");
+            // ****** System.out.printlnln("couldn't find quesload");
             
             PrintWriter creator = null;
             try {
@@ -1007,32 +1051,24 @@ public class EasySurveyMenu extends javax.swing.JFrame {
             }
             
         } catch (IOException ex) {
-            System.out.println("no fourth line");
+            // ****** System.out.printlnln("no fourth line");
             //if this happens there is no forth line
             Logger.getLogger(EasySurveyMenu.class.getName()).log(Level.SEVERE, null, ex);
         }
         
         if ("none".equals(password)) { //then the user has choosen to have none and so do nothing
-            System.out.println("password = none");
-            jframe.setVisible(true);
-            this.setVisible(false); //hide the original frame
+            // ****** System.out.printlnln("password = none");
+            
+            startChoosenFrame();
+            this.dispose(); //hide the original frame
         }
         else if ("Default".equals(password)) { //then this is the first time they've clicked this and so let them choose a password
             Container cf = passwordFrame.getContentPane();               
             cf.setBackground(Color.white);
             
-            System.out.println("password = default (i.e. not set yet)");
-            passwordFrame.setResizable(false);
-            passwordFrame.setSize(371,183);
-            
-            List<Image> icons = new ArrayList<>();
-            icons.add(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resources/Iconx16.png")));
-            icons.add(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resources/Iconx32.gif")));
-            icons.add(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resources/Iconx64.gif")));
-            passwordFrame.setIconImages(icons);
-            
-            passwordFrame.setLocationRelativeTo(null);
-            
+            // ****** System.out.printlnln("password = default (i.e. not set yet)");
+            createPasswordFrame();
+                        
                         
             enterPassword1.setText("Enter password in this field");
             
@@ -1040,22 +1076,13 @@ public class EasySurveyMenu extends javax.swing.JFrame {
             
             passwordFrame.setVisible(true);
         }
-        else if ("".equals(password)) { //then it must be broken so ask for password
+        else if ("".equals(password)) { //then it must be broken so ask for new password
             Container cd = passwordFrame.getContentPane();               
             cd.setBackground(Color.white);   
             
-            System.out.println("password = blank (so is broken)");
-            passwordFrame.setResizable(false);
-            passwordFrame.setSize(371,183);
-            
-            passwordFrame.setLocationRelativeTo(null);
-            
-            List<Image> icons = new ArrayList<>();
-            icons.add(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resources/Iconx16.png")));
-            icons.add(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resources/Iconx32.gif")));
-            icons.add(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resources/Iconx64.gif")));
-            passwordFrame.setIconImages(icons);
-                                         
+            // ****** System.out.printlnln("password = blank (so is broken)");
+            createPasswordFrame();
+                                                    
             
             enterPassword1.setText("Enter password in this field");
             
@@ -1063,22 +1090,13 @@ public class EasySurveyMenu extends javax.swing.JFrame {
       
             passwordFrame.setVisible(true);
         }
-        else if (password == null) { //then it must be broken so ask for password
+        else if (password == null) { //then it must be broken so ask for new password
             Container cp = passwordFrame.getContentPane();               
             cp.setBackground(Color.white);  
             
-            System.out.println("password = null (so is broken)");
-            passwordFrame.setResizable(false);
-            passwordFrame.setSize(371,183);
-            
-            List<Image> icons = new ArrayList<>();
-            icons.add(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resources/Iconx16.png")));
-            icons.add(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resources/Iconx32.gif")));
-            icons.add(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resources/Iconx64.gif")));
-            passwordFrame.setIconImages(icons);
-            
-            passwordFrame.setLocationRelativeTo(null);
-                              
+            // ****** System.out.printlnln("password = null (so is broken)");
+            createPasswordFrame();
+                                          
             
             enterPassword1.setText("Enter password in this field");
             
@@ -1088,18 +1106,19 @@ public class EasySurveyMenu extends javax.swing.JFrame {
 
         }
         else { //then there is a password and they must enter it
-            System.out.println("password exists they must type it in");
+            // ****** System.out.printlnln("password exists they must type it in");
             if (correctPassword == true) {
-                jframe.setVisible(true);
+                
+                startChoosenFrame();
         
-                this.setVisible(false); //hide the original frame
+                this.dispose(); //hide the original frame
                 
             } else {
                 Container cr = getPasswordFrame.getContentPane();               
                 cr.setBackground(Color.white);
                 
                 getPasswordFrame.setResizable(false);
-                getPasswordFrame.setSize(365,190);
+                getPasswordFrame.setSize(365,210);
                 
                 
                 List<Image> icons = new ArrayList<>();
@@ -1218,14 +1237,15 @@ public class EasySurveyMenu extends javax.swing.JFrame {
     private javax.swing.JLabel LabelMain;
     private javax.swing.JLabel LabelTT;
     private javax.swing.JButton LicenseLabel;
-    private javax.swing.JButton PFnoButton1;
-    private javax.swing.JButton PFyesButton1;
+    private javax.swing.JButton PFgoButton;
+    private javax.swing.JLabel androidLink;
     private javax.swing.JTextField enterPassword1;
     private javax.swing.JTextField getPassword;
     private javax.swing.JDialog getPasswordFrame;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JDialog passwordFrame;
     private javax.swing.JLabel pictureLabel;
     private static javax.swing.JFrame updateFrame;
