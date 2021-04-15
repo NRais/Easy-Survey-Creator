@@ -7,12 +7,13 @@ package library;
 
 import java.awt.Image;
 import java.awt.Toolkit;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  *
- * Copyright 2017 Nathan Rais 
+ * Copyright 2018 Nathan Rais 
  * 
  *      This file is part of The Easy Survey Creator.
  *
@@ -33,7 +34,15 @@ import java.util.List;
  */
 public class MainStartup {
     
-    String version = "2.0.6"; //THIS REALLY!! SHOULD BE CHANGED EACH NEW VERSION
+    String version = "2.1.0"; //THIS REALLY!! SHOULD BE CHANGED EACH NEW VERSION
+    
+    // variables stored to tell the user when an updaet is coming
+    static int yearPublished = 2018; 
+    static int monthPublished = 2;
+    
+    // !!!!! TODO
+    //dumbly enough we have to change the format used depending on how many digits the monthPublished var has
+    static SimpleDateFormat currentFormat = new SimpleDateFormat("Myyyy");
     
     /**
      * @param args the command line arguments
@@ -75,7 +84,7 @@ public class MainStartup {
                 Initialize.setIconImages(icons);
                 
                 Initialize.setVisible(true);
-                Initialize.runCheckDate();
+                Initialize.checkDate(yearPublished, monthPublished, currentFormat);
                 
                 
             }

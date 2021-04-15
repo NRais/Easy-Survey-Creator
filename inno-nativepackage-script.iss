@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Easy Survey Creator"
-#define MyAppVersion "2.0.6"
+#define MyAppVersion "2.1.0"
 #define MyAppPublisher "Nathan Software"
 #define MyAppURL "http://www.nathansoftware.com/"
 #define MyAppExeName "Easy Survey Creator.exe"

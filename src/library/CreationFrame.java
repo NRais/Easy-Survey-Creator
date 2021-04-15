@@ -47,10 +47,11 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import org.apache.commons.lang3.SystemUtils;
 
 /**
  *
- * Copyright 2017 Nathan Rais 
+ * Copyright 2018 Nathan Rais 
  * 
  *      This file is part of The Easy Survey Creator.
  *
@@ -75,6 +76,8 @@ public class CreationFrame extends javax.swing.JFrame {
     
     JButton[] questionsB = null;
     
+    String pathway = "C:\\Ques";
+    
    
     public String fileName = "";
     public boolean loadOldBoolean = true;
@@ -93,6 +96,12 @@ public class CreationFrame extends javax.swing.JFrame {
     public CreationFrame() {
                                 
         initComponents();
+        
+        //get system variables
+        if (!SystemUtils.IS_OS_WINDOWS) {
+            pathway = SystemUtils.USER_HOME + "/Ques";
+            System.out.println("Home " + pathway);
+        }
         
         /// ADD BUTTONS!
 
@@ -255,7 +264,7 @@ public class CreationFrame extends javax.swing.JFrame {
         String saveLocation = null;
         try {
             //read the quesload file
-            BufferedReader inLoad = new BufferedReader(new FileReader("C:\\Ques\\QuesLoad.txt"));
+            BufferedReader inLoad = new BufferedReader(new FileReader(pathway + "/QuesLoad.txt"));
             inLoad.readLine(); //read the first line but dont do anything with it (default survey)
             
             picture = inLoad.readLine(); //read and store the second line (picture to show in surveys)
@@ -270,7 +279,7 @@ public class CreationFrame extends javax.swing.JFrame {
 
         //then write the quesload file
         try {
-            BufferedWriter outLoad = new BufferedWriter(new FileWriter("C:\\Ques\\QuesLoad.txt"));
+            BufferedWriter outLoad = new BufferedWriter(new FileWriter(pathway + "/QuesLoad.txt"));
             
             outLoad.write(fileName); //write the filename of the default survey as the first line
             
@@ -288,7 +297,7 @@ public class CreationFrame extends javax.swing.JFrame {
         // open the base file to allow you to check if the current survey is the default survey
         BufferedReader getDefault = null;
         try {
-            getDefault = new BufferedReader(new FileReader("C:\\Ques\\QuesLoad.txt"));
+            getDefault = new BufferedReader(new FileReader(pathway + "/QuesLoad.txt"));
             
         } catch (FileNotFoundException ex) {
             // oops no main default file...
@@ -320,11 +329,12 @@ public class CreationFrame extends javax.swing.JFrame {
         
         // SAVING CHANGES //
         
+        // ensure our filename is an absolute path so we can use it to write to
         // if it contains a \ then it is a absolute path so its fine otherwise make it a absolute path
-        if (fileName.contains("\\")) {
+        if (fileName.contains("/") | fileName.contains("\\")) {
             //do nothing
         } else {
-            String NfileName = pathway + fileName + ".csv";
+            String NfileName = pathway + "/" + fileName + ".csv";
             fileName = NfileName;
         }
                    
@@ -393,14 +403,6 @@ public class CreationFrame extends javax.swing.JFrame {
         
         System.out.println(finalQuesFile);
         
-        //check your filename is correct
-        //if it contains a \ then it is a absolute path so its fine otherwise make it a absolute path
-        if (fileName.contains("\\")) {
-            //do nothing
-        } else {
-            String absPath = pathway + fileName + ".csv";
-            fileName = absPath;
-        }
         
         //then write the survey lines to your save file
         try {
@@ -488,6 +490,7 @@ public class CreationFrame extends javax.swing.JFrame {
         SSCdeleteSurveyButton = new javax.swing.JButton();
         ImportButton = new javax.swing.JButton();
         ExportButton = new javax.swing.JButton();
+        jSeparator1 = new javax.swing.JSeparator();
         arrowButton = new javax.swing.JButton();
         questionFieldFrame = new javax.swing.JFrame();
         qfMainLabel = new javax.swing.JLabel();
@@ -506,6 +509,12 @@ public class CreationFrame extends javax.swing.JFrame {
         labels5 = new javax.swing.JLabel();
         sideLabel = new javax.swing.JLabel();
         CNQGoButton = new javax.swing.JButton();
+        helpFrame = new javax.swing.JFrame();
+        jLabel9 = new javax.swing.JLabel();
+        jSeparator2 = new javax.swing.JSeparator();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTextPane1 = new javax.swing.JTextPane();
+        jLabel10 = new javax.swing.JLabel();
         versionLabel = new javax.swing.JLabel();
         MainLabel = new javax.swing.JLabel();
         GoButton = new javax.swing.JButton();
@@ -539,6 +548,7 @@ public class CreationFrame extends javax.swing.JFrame {
         EOintroTextField.setText("(no change)");
 
         jLabel4.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel4.setText("Extra Options");
 
         EOfileSelectButton.setText("...");
@@ -562,20 +572,15 @@ public class CreationFrame extends javax.swing.JFrame {
         extraOptionsFrame.getContentPane().setLayout(extraOptionsFrameLayout);
         extraOptionsFrameLayout.setHorizontalGroup(
             extraOptionsFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(extraOptionsFrameLayout.createSequentialGroup()
                 .addGroup(extraOptionsFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(extraOptionsFrameLayout.createSequentialGroup()
-                        .addGap(122, 122, 122)
-                        .addComponent(jLabel4))
                     .addGroup(extraOptionsFrameLayout.createSequentialGroup()
                         .addGap(40, 40, 40)
                         .addComponent(jLabel3))
                     .addGroup(extraOptionsFrameLayout.createSequentialGroup()
                         .addGap(55, 55, 55)
                         .addComponent(EOintroTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 245, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(extraOptionsFrameLayout.createSequentialGroup()
-                        .addGap(119, 119, 119)
-                        .addComponent(EOsaveChangesButton))
                     .addGroup(extraOptionsFrameLayout.createSequentialGroup()
                         .addGap(40, 40, 40)
                         .addGroup(extraOptionsFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -588,7 +593,10 @@ public class CreationFrame extends javax.swing.JFrame {
                         .addGap(55, 55, 55)
                         .addGroup(extraOptionsFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(EOpassTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 245, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(EOimageLocationName, javax.swing.GroupLayout.PREFERRED_SIZE, 245, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addComponent(EOimageLocationName, javax.swing.GroupLayout.PREFERRED_SIZE, 245, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(extraOptionsFrameLayout.createSequentialGroup()
+                        .addGap(124, 124, 124)
+                        .addComponent(EOsaveChangesButton)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         extraOptionsFrameLayout.setVerticalGroup(
@@ -610,7 +618,7 @@ public class CreationFrame extends javax.swing.JFrame {
                 .addComponent(jLabel3)
                 .addGap(6, 6, 6)
                 .addComponent(EOintroTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(11, 11, 11)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(EOsaveChangesButton)
                 .addContainerGap())
         );
@@ -685,6 +693,7 @@ public class CreationFrame extends javax.swing.JFrame {
         );
 
         jLabel6.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+        jLabel6.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel6.setText("Select one of the options below");
 
         SSCloadSurveyButton.setFont(new java.awt.Font("Arial", 0, 11)); // NOI18N
@@ -775,7 +784,7 @@ public class CreationFrame extends javax.swing.JFrame {
         });
 
         arrowButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/arrowDown.png"))); // NOI18N
-        arrowButton.setText("more");
+        arrowButton.setText("other");
         arrowButton.setToolTipText("More options");
         arrowButton.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
@@ -795,41 +804,49 @@ public class CreationFrame extends javax.swing.JFrame {
         startSurveyCreatorFrame.getContentPane().setLayout(startSurveyCreatorFrameLayout);
         startSurveyCreatorFrameLayout.setHorizontalGroup(
             startSurveyCreatorFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(startSurveyCreatorFrameLayout.createSequentialGroup()
-                .addGap(39, 39, 39)
-                .addGroup(startSurveyCreatorFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(startSurveyCreatorFrameLayout.createSequentialGroup()
-                        .addComponent(jLabel6)
-                        .addGap(0, 37, Short.MAX_VALUE))
-                    .addGroup(startSurveyCreatorFrameLayout.createSequentialGroup()
-                        .addGroup(startSurveyCreatorFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(SSCcreateNewSurveyButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(SSCloadSurveyButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(SSCdeleteSurveyButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(arrowButton)
-                        .addGap(2, 2, 2))))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, startSurveyCreatorFrameLayout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(ImportButton)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(ExportButton)
-                .addGap(76, 76, 76))
+                .addGroup(startSurveyCreatorFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, startSurveyCreatorFrameLayout.createSequentialGroup()
+                        .addComponent(ImportButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(ExportButton)
+                        .addGap(80, 80, 80))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, startSurveyCreatorFrameLayout.createSequentialGroup()
+                        .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 254, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(46, 46, 46))))
+            .addGroup(startSurveyCreatorFrameLayout.createSequentialGroup()
+                .addGroup(startSurveyCreatorFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(startSurveyCreatorFrameLayout.createSequentialGroup()
+                        .addGap(90, 90, 90)
+                        .addGroup(startSurveyCreatorFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(SSCcreateNewSurveyButton)
+                            .addGroup(startSurveyCreatorFrameLayout.createSequentialGroup()
+                                .addComponent(SSCdeleteSurveyButton, javax.swing.GroupLayout.PREFERRED_SIZE, 163, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(arrowButton))
+                            .addComponent(SSCloadSurveyButton, javax.swing.GroupLayout.PREFERRED_SIZE, 163, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(startSurveyCreatorFrameLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addContainerGap())
         );
         startSurveyCreatorFrameLayout.setVerticalGroup(
             startSurveyCreatorFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(startSurveyCreatorFrameLayout.createSequentialGroup()
                 .addGap(19, 19, 19)
                 .addComponent(jLabel6)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(SSCcreateNewSurveyButton)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(SSCloadSurveyButton)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(SSCcreateNewSurveyButton)
-                .addGap(6, 6, 6)
-                .addGroup(startSurveyCreatorFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                .addGroup(startSurveyCreatorFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(SSCdeleteSurveyButton)
-                    .addComponent(arrowButton, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                    .addComponent(arrowButton))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(2, 2, 2)
                 .addGroup(startSurveyCreatorFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(ExportButton, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(ImportButton, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -943,6 +960,56 @@ public class CreationFrame extends javax.swing.JFrame {
                 .addGap(23, 23, 23))
         );
 
+        jLabel9.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        jLabel9.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel9.setText("HELP");
+
+        jTextPane1.setEditable(false);
+        jTextPane1.setText("- To EDIT  questions click on them. Make changes. Then click \"Go\" to approve your changes.\n\n- To REARRANGE questions right-click on them. Select \"Move up\" or \"Move Down\" in the popup. Then choose how far you want it to move in the popup that is shown.\n\n- To DELETE  questions right-click on them and select \"Delete\"");
+        jScrollPane1.setViewportView(jTextPane1);
+
+        jLabel10.setFont(new java.awt.Font("Tahoma", 2, 11)); // NOI18N
+        jLabel10.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel10.setText("NOTE: For a full manual see www.nathansoftware.com");
+        jLabel10.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel10MouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                jLabel10MouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                jLabel10MouseExited(evt);
+            }
+        });
+
+        javax.swing.GroupLayout helpFrameLayout = new javax.swing.GroupLayout(helpFrame.getContentPane());
+        helpFrame.getContentPane().setLayout(helpFrameLayout);
+        helpFrameLayout.setHorizontalGroup(
+            helpFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(helpFrameLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(helpFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel9, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jSeparator2)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                    .addComponent(jLabel10, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE))
+                .addContainerGap())
+        );
+        helpFrameLayout.setVerticalGroup(
+            helpFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(helpFrameLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel9)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 156, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jLabel10)
+                .addContainerGap(50, Short.MAX_VALUE))
+        );
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resources/Iconx32.gif")));
         setModalExclusionType(java.awt.Dialog.ModalExclusionType.APPLICATION_EXCLUDE);
@@ -969,7 +1036,8 @@ public class CreationFrame extends javax.swing.JFrame {
             }
         });
 
-        jLabel2.setFont(new java.awt.Font("Arial", 2, 14)); // NOI18N
+        jLabel2.setFont(new java.awt.Font("Arial", 3, 18)); // NOI18N
+        jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel2.setText("Press Start to load a project or create a new project");
 
         SaveChangesButton.setFont(new java.awt.Font("Arial", 0, 10)); // NOI18N
@@ -1012,7 +1080,7 @@ public class CreationFrame extends javax.swing.JFrame {
 
         ExtraOptionsButton.setFont(new java.awt.Font("Arial", 0, 11)); // NOI18N
         ExtraOptionsButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/ball-blue.png"))); // NOI18N
-        ExtraOptionsButton.setText("Advanced Settings");
+        ExtraOptionsButton.setText("Advanced Configurations");
         ExtraOptionsButton.setToolTipText("Click to configure advanced options");
         ExtraOptionsButton.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
@@ -1104,12 +1172,6 @@ public class CreationFrame extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(20, 20, 20)
-                .addComponent(jLabel2)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(AddNewQuestionButton)
-                .addGap(17, 17, 17))
-            .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addGap(20, 20, 20)
@@ -1133,12 +1195,22 @@ public class CreationFrame extends javax.swing.JFrame {
                         .addComponent(LicenseLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 660, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(20, 20, 20)
-                        .addComponent(ExtraOptionsButton, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(227, 227, 227)
+                        .addComponent(ExtraOptionsButton, javax.swing.GroupLayout.PREFERRED_SIZE, 197, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(0, 6, Short.MAX_VALUE))
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(10, 10, 10)
                         .addComponent(SaveChangesButton)
-                        .addGap(12, 12, 12)
-                        .addComponent(SetDefaultButton)))
-                .addGap(0, 0, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(SetDefaultButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(AddNewQuestionButton)
+                        .addGap(17, 17, 17))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addContainerGap())))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1154,18 +1226,18 @@ public class CreationFrame extends javax.swing.JFrame {
                     .addComponent(HelpButton))
                 .addGap(3, 3, 3)
                 .addComponent(GoButton)
-                .addGap(11, 11, 11)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel2)
-                    .addComponent(AddNewQuestionButton))
+                    .addComponent(AddNewQuestionButton)
+                    .addComponent(SaveChangesButton, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(SetDefaultButton, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(6, 6, 6)
                 .addComponent(questionScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 234, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(11, 11, 11)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(ExtraOptionsButton, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(SaveChangesButton, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(SetDefaultButton, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(38, 38, 38)
+                .addComponent(ExtraOptionsButton, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
                 .addComponent(LicenseLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
@@ -1197,7 +1269,7 @@ public class CreationFrame extends javax.swing.JFrame {
     private void SaveChangesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SaveChangesButtonActionPerformed
         this.setCursor(new Cursor(Cursor.WAIT_CURSOR));
         try {
-            saveChanges("C:\\Ques\\");
+            saveChanges(pathway + "/");
         } catch (Exception e) {
             // if it can't save the survey file print error
             jLabel2.setForeground(Color.red);   //
@@ -1249,7 +1321,7 @@ public class CreationFrame extends javax.swing.JFrame {
         String saveLocation = null; // not used
         try {
             //read the quesload file
-            BufferedReader getExtraStuff = new BufferedReader(new FileReader("C:\\Ques\\QuesLoad.txt"));
+            BufferedReader getExtraStuff = new BufferedReader(new FileReader(pathway + "/QuesLoad.txt"));
             getExtraStuff.readLine(); //read the first line but dont do anything with it (default survey)
             
             picture = getExtraStuff.readLine(); //read and store the second line (picture to show in surveys)
@@ -1293,7 +1365,7 @@ public class CreationFrame extends javax.swing.JFrame {
         
             FileNameExtensionFilter filter = new FileNameExtensionFilter("IMAGE FILES", "jpg", "png" , "bmp" , "gif");
 
-            JFileChooser folderChooser = new JFileChooser("C:\\Users\\");
+            JFileChooser folderChooser = new JFileChooser("C:\\Users/");
             
             folderChooser.setFileHidingEnabled(true); //but the files will still show if you have it set to show on your computer
             
@@ -1363,7 +1435,7 @@ public class CreationFrame extends javax.swing.JFrame {
             // open the save file and store the info
             BufferedReader reader = null;
             try {
-                reader = new BufferedReader(new FileReader("C:\\Ques\\QuesLoad.txt"));
+                reader = new BufferedReader(new FileReader(pathway + "/QuesLoad.txt"));
                 firstLine = reader.readLine(); //read and store line 1
                 
                 if (imageLocation.equals("No Change")) { //if the user doesn't choose to change the image then don't duh!
@@ -1387,7 +1459,7 @@ public class CreationFrame extends javax.swing.JFrame {
             }
 
             try {
-                BufferedWriter out = new BufferedWriter(new FileWriter("C:\\Ques\\QuesLoad.txt"));
+                BufferedWriter out = new BufferedWriter(new FileWriter(pathway + "/QuesLoad.txt"));
                 out.write(firstLine + "\r\n"); //rewrite the file with your lines instead
                 out.write(imageLocation + "\r\n");
                 out.write(introLine + "\r\n");
@@ -1430,7 +1502,7 @@ public class CreationFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_ButtonReturnActionPerformed
 
     private void SCFyesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SCFyesButtonActionPerformed
-        saveChanges("C:\\Ques\\"); //first save
+        saveChanges(pathway + "/"); //first save
         
         saveCheckContinue();
     }//GEN-LAST:event_SCFyesButtonActionPerformed
@@ -1509,32 +1581,6 @@ public class CreationFrame extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_SaveChangesButtonMouseExited
 
-    private void SSCloadSurveyButtonMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_SSCloadSurveyButtonMouseEntered
-        SSCloadSurveyButton.setIcon(new ImageIcon(getClass().getResource("/resources/ball-greenSelected.png")));
-    }//GEN-LAST:event_SSCloadSurveyButtonMouseEntered
-
-    private void SSCloadSurveyButtonMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_SSCloadSurveyButtonMouseExited
-        SSCloadSurveyButton.setIcon(new ImageIcon(getClass().getResource("/resources/ball-green.png")));
-    }//GEN-LAST:event_SSCloadSurveyButtonMouseExited
-
-    private void SSCloadSurveyButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SSCloadSurveyButtonActionPerformed
-        loadOldBoolean = true;
-        loadOldButtonActionPerformed(evt);
-    }//GEN-LAST:event_SSCloadSurveyButtonActionPerformed
-
-    private void SSCcreateNewSurveyButtonMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_SSCcreateNewSurveyButtonMouseEntered
-        SSCcreateNewSurveyButton.setIcon(new ImageIcon(getClass().getResource("/resources/ball-blueSelected.png")));
-    }//GEN-LAST:event_SSCcreateNewSurveyButtonMouseEntered
-
-    private void SSCcreateNewSurveyButtonMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_SSCcreateNewSurveyButtonMouseExited
-        SSCcreateNewSurveyButton.setIcon(new ImageIcon(getClass().getResource("/resources/ball-blue.png")));
-    }//GEN-LAST:event_SSCcreateNewSurveyButtonMouseExited
-
-    private void SSCcreateNewSurveyButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SSCcreateNewSurveyButtonActionPerformed
-        loadOldBoolean = true;
-        createNewButtonActionPerformed(evt);
-    }//GEN-LAST:event_SSCcreateNewSurveyButtonActionPerformed
-
     private void SetDefaultButtonMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_SetDefaultButtonMouseEntered
         if (SetDefaultButton.isEnabled() == true) {        
             SetDefaultButton.setIcon(new ImageIcon(getClass().getResource("/resources/ball-blueSelected.png")));
@@ -1572,69 +1618,6 @@ public class CreationFrame extends javax.swing.JFrame {
         jLabel2.setForeground(Color.black);
     }//GEN-LAST:event_SetDefaultButtonActionPerformed
 
-    private void SSCdeleteSurveyButtonMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_SSCdeleteSurveyButtonMouseEntered
-        SSCdeleteSurveyButton.setIcon(new ImageIcon(getClass().getResource("/resources/ball-magentaSelected.png")));
-    }//GEN-LAST:event_SSCdeleteSurveyButtonMouseEntered
-
-    private void SSCdeleteSurveyButtonMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_SSCdeleteSurveyButtonMouseExited
-        SSCdeleteSurveyButton.setIcon(new ImageIcon(getClass().getResource("/resources/ball-magenta.png")));
-    }//GEN-LAST:event_SSCdeleteSurveyButtonMouseExited
-
-    private void SSCdeleteSurveyButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SSCdeleteSurveyButtonActionPerformed
-        loadOldBoolean = true;
-        SSCdeleteSurveyButton.setIcon(new ImageIcon(getClass().getResource("/resources/ball-magenta.png")));
-        
-        startSurveyCreatorFrame.dispose();
-        
-        // first CLOSE THE CURRENT SURVEY
-        
-        
-        if (loadOldBoolean == true) { //only run the action if it hasn't just run to avoid repeats
-            
-            File[] selectedFiles;
-            
-            FileNameExtensionFilter filter = new FileNameExtensionFilter("CSV (Comma Seperated Data Files)", "csv");
-
-            JFileChooser fileDeleter = new JFileChooser("C:\\Ques\\");
-            fileDeleter.setFileSelectionMode(JFileChooser.FILES_ONLY); //this makes it so you can only select a file
-            fileDeleter.setFileFilter(filter);
-            fileDeleter.setApproveButtonText("Delete");
-            fileDeleter.setApproveButtonToolTipText("Delete the selected files");
-            // Allow multiple selection
-            fileDeleter.setMultiSelectionEnabled(true);
-            
-            int returnValue = fileDeleter.showOpenDialog(null);
-            if (returnValue == JFileChooser.APPROVE_OPTION) {
-                
-                selectedFiles = fileDeleter.getSelectedFiles();
-                
-                loadOldBoolean = false;
-
-                // If some file is selected
-                if(selectedFiles!=null)
-                {
-                    // If user confirms to delete
-                    if(askConfirm()==JOptionPane.YES_OPTION)
-                    {
-                        
-
-                    // Call Files.delete(), if any problem occurs
-                    // the exception can be printed, it can be
-                    // analysed
-                    for(File f:selectedFiles)
-                        try {
-                            java.nio.file.Files.delete(f.toPath());
-                        } catch (IOException ex) {}
-
-                        // Rescan the directory after deletion
-                        fileDeleter.rescanCurrentDirectory();
-                    }
-                }
-                            
-            }
-        }
-    }//GEN-LAST:event_SSCdeleteSurveyButtonActionPerformed
-
     private void LicenseLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_LicenseLabelMouseClicked
         URI domain = null;
         try {
@@ -1654,13 +1637,13 @@ public class CreationFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_LicenseLabelMouseExited
 
     private void HelpButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_HelpButtonActionPerformed
-        URI domain = null;
-        try {
-            domain = new URI("http://nathansoftware.com/wordpress/support/"); 
-        } catch (URISyntaxException ex) {
-            Logger.getLogger(EasySurveyMenu.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        openWebpage(domain);
+        Container c = helpFrame.getContentPane();               
+        c.setBackground(Color.white);
+        
+        helpFrame.setSize(420,280);
+        helpFrame.setResizable(false);
+        helpFrame.setLocationRelativeTo(null);
+        helpFrame.setVisible(true);
     }//GEN-LAST:event_HelpButtonActionPerformed
 
     private void HelpButtonMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_HelpButtonMouseEntered
@@ -1671,26 +1654,60 @@ public class CreationFrame extends javax.swing.JFrame {
         HelpButton.setIcon(new ImageIcon(getClass().getResource("/resources/helpIcon.jpg")));
     }//GEN-LAST:event_HelpButtonMouseExited
 
-    private void ExportButtonMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ExportButtonMouseEntered
-        ExportButton.setIcon(new ImageIcon(getClass().getResource("/resources/ball-tealSelected.png")));
-    }//GEN-LAST:event_ExportButtonMouseEntered
+    private void arrowButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_arrowButtonActionPerformed
+        // when you click on the "more" button
+        if ("down".equals(arrowIcon)) {
+            // if it currently is pointing down then we change it to say and then point up
+            System.out.println("Arrow up");
+            arrowIcon = "up";
+            arrowButton.setIcon(new ImageIcon(getClass().getResource("/resources/arrowUpSelected.png")));
+            startSurveyCreatorFrame.setSize(354,280);
+            startSurveyCreatorFrame.repaint();
+        }
+        else {
+            // if it currently is pointing up then we change it to say and then point down
+            System.out.println("Arrow down");
+            arrowIcon = "down";
+            arrowButton.setIcon(new ImageIcon(getClass().getResource("/resources/arrowDownSelected.png")));
+            startSurveyCreatorFrame.setSize(354,230); // NOTE: normal size
+            startSurveyCreatorFrame.repaint();
+        }
+    }//GEN-LAST:event_arrowButtonActionPerformed
 
-    private void ExportButtonMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ExportButtonMouseExited
-        ExportButton.setIcon(new ImageIcon(getClass().getResource("/resources/ball-teal.png")));
-    }//GEN-LAST:event_ExportButtonMouseExited
+    private void arrowButtonMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_arrowButtonMouseExited
+        if ("down".equals(arrowIcon)) {
+            arrowButton.setForeground(Color.BLACK);
+            arrowButton.setIcon(new ImageIcon(getClass().getResource("/resources/arrowDown.png")));
+        }
+        else {
+            arrowButton.setForeground(Color.BLACK);
+            arrowButton.setIcon(new ImageIcon(getClass().getResource("/resources/arrowUp.png")));
+        }
+    }//GEN-LAST:event_arrowButtonMouseExited
+
+    private void arrowButtonMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_arrowButtonMouseEntered
+        if ("down".equals(arrowIcon)) {
+            arrowButton.setForeground(Color.GRAY);
+            arrowButton.setIcon(new ImageIcon(getClass().getResource("/resources/arrowDownSelected.png")));
+        }
+        else {
+            arrowButton.setForeground(Color.GRAY);
+            arrowButton.setIcon(new ImageIcon(getClass().getResource("/resources/arrowUpSelected.png")));
+        }
+    }//GEN-LAST:event_arrowButtonMouseEntered
 
     private void ExportButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ExportButtonActionPerformed
-            startSurveyCreatorFrame.dispose();
-        
-            FileNameExtensionFilter filter = new FileNameExtensionFilter("CSV (Comma Seperated Data Files)", "csv");
+        startSurveyCreatorFrame.dispose();
 
-            // string used to store the pathway of the selected file
-            String pathway = "";
-            
-            // string to store survey name
-            String surveyToGet = "";
-                        
-            JFileChooser fileChooser = new JFileChooser("C:\\Ques\\");
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("CSV (Comma Seperated Data Files)", "csv");
+
+        // string used to store the pathway of the selected file
+        String pathway = "";
+
+        // string to store survey name
+        String surveyToGet = "";
+
+        JFileChooser fileChooser = new JFileChooser(pathway + "/");
             fileChooser.setDialogTitle("Select a file to export");
             fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY); //this makes it so you can only select a file
             fileChooser.setFileFilter(filter);
@@ -1698,29 +1715,29 @@ public class CreationFrame extends javax.swing.JFrame {
             fileChooser.setApproveButtonToolTipText("Export the selected survey");
             // Allow multiple selection
             fileChooser.setMultiSelectionEnabled(true);
-            
+
             int returnValue = fileChooser.showOpenDialog(null);
             if (returnValue == JFileChooser.APPROVE_OPTION) {
                 // when you choose a file it stores its entire path and name
                 pathway = fileChooser.getSelectedFile().getAbsolutePath();
-                
+
                 // and it store the surveys name to use for the new survey you export
                 surveyToGet = fileChooser.getSelectedFile().getName();
-                
+
                 System.out.println("pathway: " + pathway );
-                
+
                 BufferedReader reader = null;
                 try { // this is the reader that reads the current file to be exported
                     reader = new BufferedReader(new FileReader(pathway));
                 } catch (Exception e) {
                     // the file cant be opened so we must assume their is some error
                 }
-                
+
                 System.out.println("Reader open for exporting");
-                
+
                 // now we read through the file
                 String fileText = "";
-                
+
                 // this loop runs until the end of the file when it reaches a null line, then it breaks
                 // this reads and stores the survey that you want to export
                 for (int i = 0; i > -1; i++) {
@@ -1731,7 +1748,7 @@ public class CreationFrame extends javax.swing.JFrame {
                     } catch (IOException ex) {
                         System.out.println("End of file");
                     }
-                    
+
                     if (line == null) {
                         i++;
                         try {
@@ -1741,7 +1758,7 @@ public class CreationFrame extends javax.swing.JFrame {
                         }
                         break;
                     }
-                    
+
                     // for all lines expcept the 1st add in a new line char
                     if (!"".equals(fileText)) {
                         fileText = fileText + "\r\n" +line;
@@ -1750,9 +1767,9 @@ public class CreationFrame extends javax.swing.JFrame {
                         fileText = line;
                     }
                 }
-                
+
                 System.out.println("FN: " + pathway + " FT: " + fileText);
-                
+
                 // Export the file //
                 JFileChooser exporter = new JFileChooser();
                 exporter.setDialogTitle("Choose Location to Export");
@@ -1773,45 +1790,46 @@ public class CreationFrame extends javax.swing.JFrame {
                         // couldn't write the file...
                     }
                     jLabel2.setText("Survey successfully exported");
-                }     
+                }
             }
     }//GEN-LAST:event_ExportButtonActionPerformed
 
-    private void ImportButtonMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ImportButtonMouseEntered
-        ImportButton.setIcon(new ImageIcon(getClass().getResource("/resources/ball-purpleSelected.png")));
-    }//GEN-LAST:event_ImportButtonMouseEntered
+    private void ExportButtonMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ExportButtonMouseExited
+        ExportButton.setIcon(new ImageIcon(getClass().getResource("/resources/ball-teal.png")));
+    }//GEN-LAST:event_ExportButtonMouseExited
 
-    private void ImportButtonMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ImportButtonMouseExited
-        ImportButton.setIcon(new ImageIcon(getClass().getResource("/resources/ball-purple.png")));
-    }//GEN-LAST:event_ImportButtonMouseExited
+    private void ExportButtonMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ExportButtonMouseEntered
+        ExportButton.setIcon(new ImageIcon(getClass().getResource("/resources/ball-tealSelected.png")));
+    }//GEN-LAST:event_ExportButtonMouseEntered
 
     private void ImportButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ImportButtonActionPerformed
-            startSurveyCreatorFrame.dispose();
-        
-            FileNameExtensionFilter filter = new FileNameExtensionFilter("CSV (Comma Seperated Data Files)", "csv");
+        startSurveyCreatorFrame.dispose();
 
-            String pathway = "";
-            
-            JFileChooser fileChooser = new JFileChooser("/Documents");
-            fileChooser.setDialogTitle("Select a file to import");
-            fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY); //this makes it so you can only select a file
-            fileChooser.setFileFilter(filter);
-            fileChooser.setApproveButtonText("Choose File");
-            fileChooser.setApproveButtonToolTipText("Import the selected survey");
-            // Allow multiple selection
-            fileChooser.setMultiSelectionEnabled(true);
-            
-            int returnValue = fileChooser.showOpenDialog(null);
-            if (returnValue == JFileChooser.APPROVE_OPTION) {
-                // when you choose a file it stores it
-                pathway = fileChooser.getSelectedFile().getName();
-                
-                File locationFile = fileChooser.getSelectedFile();
-                
-                File importLocal = new File("C:\\Ques\\" + pathway);
-                
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("CSV (Comma Seperated Data Files)", "csv");
+
+        String thePathway = "";
+
+        JFileChooser fileChooser = new JFileChooser("/Documents");
+        fileChooser.setDialogTitle("Select a file to import");
+        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY); //this makes it so you can only select a file
+        fileChooser.setFileFilter(filter);
+        fileChooser.setApproveButtonText("Choose File");
+        fileChooser.setApproveButtonToolTipText("Import the selected survey");
+        // Allow multiple selection
+        fileChooser.setMultiSelectionEnabled(true);
+
+        int returnValue = fileChooser.showOpenDialog(null);
+        if (returnValue == JFileChooser.APPROVE_OPTION) {
+            // when you choose a file it stores it
+            thePathway = fileChooser.getSelectedFile().getName();
+
+            File locationFile = fileChooser.getSelectedFile();
+
+            // the path to our file / the name of the file
+            File importLocal = new File(pathway + "/" + thePathway);
+
                 System.out.println("importing " + importLocal.getAbsolutePath());
-                                 
+
                 if (!locationFile.renameTo(importLocal)) {
                     // cant import file
                     System.out.println("Can't import file");
@@ -1824,45 +1842,118 @@ public class CreationFrame extends javax.swing.JFrame {
             }
     }//GEN-LAST:event_ImportButtonActionPerformed
 
-    private void arrowButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_arrowButtonActionPerformed
-        
-        if ("down".equals(arrowIcon)) {
-            System.out.println("Arrow down");
-            arrowIcon = "up";
-            arrowButton.setIcon(new ImageIcon(getClass().getResource("/resources/arrowUpSelected.png")));
-            startSurveyCreatorFrame.setSize(354,280);
-            startSurveyCreatorFrame.repaint();
-        }
-        else {
-            System.out.println("Arrow up");
-            arrowIcon = "down";
-            arrowButton.setIcon(new ImageIcon(getClass().getResource("/resources/arrowDownSelected.png")));
-            startSurveyCreatorFrame.setSize(354,220);
-            startSurveyCreatorFrame.repaint();
-        }
-    }//GEN-LAST:event_arrowButtonActionPerformed
+    private void ImportButtonMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ImportButtonMouseExited
+        ImportButton.setIcon(new ImageIcon(getClass().getResource("/resources/ball-purple.png")));
+    }//GEN-LAST:event_ImportButtonMouseExited
 
-    private void arrowButtonMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_arrowButtonMouseEntered
-        if ("down".equals(arrowIcon)) {
-            arrowButton.setForeground(Color.GRAY);
-            arrowButton.setIcon(new ImageIcon(getClass().getResource("/resources/arrowDownSelected.png")));
-        }
-        else {
-            arrowButton.setForeground(Color.GRAY);
-            arrowButton.setIcon(new ImageIcon(getClass().getResource("/resources/arrowUpSelected.png")));
-        }
-    }//GEN-LAST:event_arrowButtonMouseEntered
+    private void ImportButtonMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ImportButtonMouseEntered
+        ImportButton.setIcon(new ImageIcon(getClass().getResource("/resources/ball-purpleSelected.png")));
+    }//GEN-LAST:event_ImportButtonMouseEntered
 
-    private void arrowButtonMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_arrowButtonMouseExited
-        if ("down".equals(arrowIcon)) {
-            arrowButton.setForeground(Color.BLACK);
-            arrowButton.setIcon(new ImageIcon(getClass().getResource("/resources/arrowDown.png")));
+    private void SSCdeleteSurveyButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SSCdeleteSurveyButtonActionPerformed
+        loadOldBoolean = true;
+        SSCdeleteSurveyButton.setIcon(new ImageIcon(getClass().getResource("/resources/ball-magenta.png")));
+
+        startSurveyCreatorFrame.dispose();
+
+        // first CLOSE THE CURRENT SURVEY
+
+        if (loadOldBoolean == true) { //only run the action if it hasn't just run to avoid repeats
+
+            File[] selectedFiles;
+
+            FileNameExtensionFilter filter = new FileNameExtensionFilter("CSV (Comma Seperated Data Files)", "csv");
+
+            JFileChooser fileDeleter = new JFileChooser(pathway + "/");
+                fileDeleter.setFileSelectionMode(JFileChooser.FILES_ONLY); //this makes it so you can only select a file
+                fileDeleter.setFileFilter(filter);
+                fileDeleter.setApproveButtonText("Delete");
+                fileDeleter.setApproveButtonToolTipText("Delete the selected files");
+                // Allow multiple selection
+                fileDeleter.setMultiSelectionEnabled(true);
+
+                int returnValue = fileDeleter.showOpenDialog(null);
+                if (returnValue == JFileChooser.APPROVE_OPTION) {
+
+                    selectedFiles = fileDeleter.getSelectedFiles();
+
+                    loadOldBoolean = false;
+
+                    // If some file is selected
+                    if(selectedFiles!=null)
+                    {
+                        // If user confirms to delete
+                        if(askConfirm()==JOptionPane.YES_OPTION)
+                        {
+
+                            // Call Files.delete(), if any problem occurs
+                            // the exception can be printed, it can be
+                            // analysed
+                            for(File f:selectedFiles)
+                            try {
+                                java.nio.file.Files.delete(f.toPath());
+                            } catch (IOException ex) {}
+
+                            // Rescan the directory after deletion
+                            fileDeleter.rescanCurrentDirectory();
+                        }
+                    }
+
+                }
+            }
+    }//GEN-LAST:event_SSCdeleteSurveyButtonActionPerformed
+
+    private void SSCdeleteSurveyButtonMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_SSCdeleteSurveyButtonMouseExited
+        SSCdeleteSurveyButton.setIcon(new ImageIcon(getClass().getResource("/resources/ball-magenta.png")));
+    }//GEN-LAST:event_SSCdeleteSurveyButtonMouseExited
+
+    private void SSCdeleteSurveyButtonMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_SSCdeleteSurveyButtonMouseEntered
+        SSCdeleteSurveyButton.setIcon(new ImageIcon(getClass().getResource("/resources/ball-magentaSelected.png")));
+    }//GEN-LAST:event_SSCdeleteSurveyButtonMouseEntered
+
+    private void SSCcreateNewSurveyButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SSCcreateNewSurveyButtonActionPerformed
+        loadOldBoolean = true;
+        createNewButtonActionPerformed(evt);
+    }//GEN-LAST:event_SSCcreateNewSurveyButtonActionPerformed
+
+    private void SSCcreateNewSurveyButtonMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_SSCcreateNewSurveyButtonMouseExited
+        SSCcreateNewSurveyButton.setIcon(new ImageIcon(getClass().getResource("/resources/ball-blue.png")));
+    }//GEN-LAST:event_SSCcreateNewSurveyButtonMouseExited
+
+    private void SSCcreateNewSurveyButtonMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_SSCcreateNewSurveyButtonMouseEntered
+        SSCcreateNewSurveyButton.setIcon(new ImageIcon(getClass().getResource("/resources/ball-blueSelected.png")));
+    }//GEN-LAST:event_SSCcreateNewSurveyButtonMouseEntered
+
+    private void SSCloadSurveyButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SSCloadSurveyButtonActionPerformed
+        loadOldBoolean = true;
+        loadOldButtonActionPerformed(evt);
+    }//GEN-LAST:event_SSCloadSurveyButtonActionPerformed
+
+    private void SSCloadSurveyButtonMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_SSCloadSurveyButtonMouseExited
+        SSCloadSurveyButton.setIcon(new ImageIcon(getClass().getResource("/resources/ball-green.png")));
+    }//GEN-LAST:event_SSCloadSurveyButtonMouseExited
+
+    private void SSCloadSurveyButtonMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_SSCloadSurveyButtonMouseEntered
+        SSCloadSurveyButton.setIcon(new ImageIcon(getClass().getResource("/resources/ball-greenSelected.png")));
+    }//GEN-LAST:event_SSCloadSurveyButtonMouseEntered
+
+    private void jLabel10MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel10MouseClicked
+        URI domain = null;
+        try {
+            domain = new URI("http://nathansoftware.com/wordpress/easy-survey-creator-manual/"); //launches the website and ESC manual
+        } catch (URISyntaxException ex) {
+            Logger.getLogger(CreationFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
-        else {
-            arrowButton.setForeground(Color.BLACK);
-            arrowButton.setIcon(new ImageIcon(getClass().getResource("/resources/arrowUp.png")));
-        }
-    }//GEN-LAST:event_arrowButtonMouseExited
+        openWebpage(domain);
+    }//GEN-LAST:event_jLabel10MouseClicked
+
+    private void jLabel10MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel10MouseEntered
+        jLabel10.setForeground(Color.CYAN);
+    }//GEN-LAST:event_jLabel10MouseEntered
+
+    private void jLabel10MouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel10MouseExited
+        jLabel10.setForeground(null);
+    }//GEN-LAST:event_jLabel10MouseExited
     
     public int askConfirm()
     {
@@ -1915,7 +2006,7 @@ public class CreationFrame extends javax.swing.JFrame {
             
             FileNameExtensionFilter filter = new FileNameExtensionFilter("CSV (Comma Seperated Data Files)", "csv", "csv");
 
-            JFileChooser folderChooser = new JFileChooser("C:\\Ques\\");
+            JFileChooser folderChooser = new JFileChooser(pathway + "/");
             folderChooser.setFileSelectionMode(JFileChooser.FILES_ONLY); //this makes it so you can only select a file
             folderChooser.setFileFilter(filter);
             int returnValue = folderChooser.showOpenDialog(null);
@@ -1948,13 +2039,18 @@ public class CreationFrame extends javax.swing.JFrame {
 
         loadOldBoolean = false;
 
-        String name = fileName.substring(fileName.lastIndexOf("\\") + 1);
-
-        jLabel2.setText("\"" + name + "\" (Click on a question to edit it) :");
+        String name = "";
+        if (name.contains("/")) {
+            name = fileName.substring(fileName.lastIndexOf("/") + 1);
+        } else {
+            name = fileName.substring(fileName.lastIndexOf("\\") + 1);
+        }
+        
+        jLabel2.setText("\"" + name + "\" (Click on a question to edit it)");
 
         if (jLabel2.getText().length() > 50) { //if the strings to long
             //then shorten it
-            jLabel2.setText("\"" + name + "\" :");
+            jLabel2.setText("\"" + name + "\"");
         } //otherwise dont worry about it
 
         //then un disable the buttons at the bottom
@@ -2103,6 +2199,7 @@ public class CreationFrame extends javax.swing.JFrame {
         if (!"Enter survey name here".equals(newQuesTF.getText())) {
             
             questionPanel.removeAll(); //clear the text field so that it doesn't have old files stuff on it
+            questionPanel.repaint();
             
             questionsB = null; // remove all the buttons
 
@@ -2111,10 +2208,10 @@ public class CreationFrame extends javax.swing.JFrame {
             //then create the file you have just decided to make
             PrintWriter writer = null;
             try {
-                File f = new File("C:\\Ques\\");
+                File f = new File(pathway + "/");
                 f.mkdirs();
 
-                writer = new PrintWriter("C:\\Ques\\" + fileName + ".csv", "UTF-8");
+                writer = new PrintWriter(pathway + "/" + fileName + ".csv", "UTF-8");
             } catch (FileNotFoundException ex) {
                 Logger.getLogger(CreationFrame.class.getName()).log(Level.SEVERE, null, ex);
             } catch (UnsupportedEncodingException ex) {
@@ -2126,15 +2223,17 @@ public class CreationFrame extends javax.swing.JFrame {
             newQuestionaireFrame.dispose();
 
             String name = fileName;
-            try {
-                name = fileName.substring(fileName.lastIndexOf("\\"));
-            } catch (Exception e) {}
+            if (name.contains("/")) {
+                name = fileName.substring(fileName.lastIndexOf("/") + 1);
+            } else {
+                name = fileName.substring(fileName.lastIndexOf("\\") + 1);
+            }
 
-            jLabel2.setText("\"" + name + "\" (You may edit this field) :");
+            jLabel2.setText("\"" + name + "\" (You may edit this field)");
 
             if (jLabel2.getText().length() > 20) { //if the strings to long
                 //then shorten it
-                jLabel2.setText("\"" + name + "\" :");
+                jLabel2.setText("\"" + name + "\"");
             } //otherwise dont worry about it
 
             SetDefaultButton.setEnabled(true);
@@ -2206,9 +2305,11 @@ public class CreationFrame extends javax.swing.JFrame {
         //sets functions for the new  frame
         
         startSurveyCreatorFrame.setResizable(false); //sets it so it cant be resized because that messes up the components positions
-        startSurveyCreatorFrame.setSize(354,220); //sets its size
+        startSurveyCreatorFrame.setSize(354,230); //sets its size
         startSurveyCreatorFrame.setLocationRelativeTo(null); //makes it appear in the screens center
         startSurveyCreatorFrame.setVisible(true); //sets the frame to be able to be seen
+        
+        jLabel6.setSize(startSurveyCreatorFrame.getWidth(), jLabel6.getHeight()); // setup the top label so it is the correct width based upon the frame size
         
         List<Image> icons = new ArrayList<>();
         icons.add(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resources/Iconx16.png")));
@@ -2332,8 +2433,8 @@ public class CreationFrame extends javax.swing.JFrame {
             CNQGoButton.setToolTipText("Create the new question"); //if you hover you mouse over this button this info will appear
         }
             
-        CNQGoButton.setIcon(new ImageIcon(getClass().getResource("/resources/ballCreate.png")));
-        CNQGoButton.setSelectedIcon(new ImageIcon(getClass().getResource("/resources/ballCreateSelected.png")));
+        CNQGoButton.setIcon(new ImageIcon(getClass().getResource("/resources/ballGO.png")));
+        CNQGoButton.setSelectedIcon(new ImageIcon(getClass().getResource("/resources/ballGOSelected.png")));
         CNQGoButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                     CNQGoButtonActionPerformed(evt, questionNumber);
@@ -2571,7 +2672,9 @@ public class CreationFrame extends javax.swing.JFrame {
     private javax.swing.JButton SetDefaultButton;
     private javax.swing.JButton arrowButton;
     private javax.swing.JFrame extraOptionsFrame;
+    private javax.swing.JFrame helpFrame;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -2579,6 +2682,11 @@ public class CreationFrame extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JSeparator jSeparator2;
+    private javax.swing.JTextPane jTextPane1;
     private javax.swing.JLabel labels1;
     private javax.swing.JLabel labels2;
     private javax.swing.JLabel labels3;

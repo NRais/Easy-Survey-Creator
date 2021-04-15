@@ -19,7 +19,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.text.JTextComponent;
 /**
  *
- * Copyright 2017 Nathan Rais 
+ * Copyright 2018 Nathan Rais 
  * 
  *      This file is part of The Easy Survey Creator.
  *

@@ -14,7 +14,6 @@ import java.awt.Toolkit;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
@@ -30,11 +29,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
+import org.apache.commons.lang3.SystemUtils;
 import org.jsoup.Jsoup;
 
 /**
  *
- * Copyright 2017 Nathan Rais 
+ * Copyright 2018 Nathan Rais 
  * 
  *      This file is part of The Easy Survey Creator.
  *
@@ -58,6 +58,8 @@ public class AnswerFrame extends javax.swing.JFrame {
     // -- //
     MainStartup MS = new MainStartup();
     public String version = MS.version; //THIS REALLY SHOULD BE CHANGED EACH NEW VERSION
+    
+    String pathway = "C:\\Ques";
     // -- //
     
     public boolean going = true;
@@ -100,6 +102,12 @@ public class AnswerFrame extends javax.swing.JFrame {
     public AnswerFrame() {
         initComponents();
         
+        //get system variables
+        if (!SystemUtils.IS_OS_WINDOWS) {
+            pathway = SystemUtils.USER_HOME + "/Ques";
+            System.out.println("Home " + pathway);
+        }
+        
         MainStartup main = new MainStartup();
         
         versionLabel.setText("Copyright NathanSoftware.com version " + main.version);
@@ -108,6 +116,7 @@ public class AnswerFrame extends javax.swing.JFrame {
         c.setBackground(Color.white);
         
         setLocationRelativeTo(null);
+        setResizable(false);
         
         //FieldUserInfo.setContentType("text/html");
         
@@ -156,17 +165,17 @@ public class AnswerFrame extends javax.swing.JFrame {
         userListBox.addItem("All Users Found");
         
         // get results from the Ques folder
-        for (int i = 0; i < finderCSV("C:\\Ques\\").length; i++) {
+        for (int i = 0; i < finderCSV(pathway + "/").length; i++) {
             boolean insert = true;
             
             
             // first search all .sur files and store their names because they are the survey saves
-            if (finderCSV("C:\\Ques\\")[i].getName().contains(".sur")) {
+            if (finderCSV(pathway + "/")[i].getName().contains(".sur")) {
                     
                 // SURVEY NAMES
                 
                 // the part after the underscore and before the .sur is found (that is the survey name)
-                String item = finderCSV("C:\\Ques\\")[i].getName();
+                String item = finderCSV(pathway + "/")[i].getName();
                 item = item.substring(item.lastIndexOf("_") + 1, item.indexOf(".sur")); // NOTE: if a user places a "_" in a survey name it will break it
                 
                 // then check that this name doesn't already exist
@@ -189,7 +198,7 @@ public class AnswerFrame extends javax.swing.JFrame {
                 insert = true;
                 
                 // the part after the "Save_" and before the last underscore is the user name
-                String useritem = finderCSV("C:\\Ques\\")[i].getName();
+                String useritem = finderCSV(pathway + "/")[i].getName();
                 useritem = useritem.substring(useritem.indexOf("Save_") + 5, useritem.lastIndexOf("_")); // NOTE: if a user places a "_" in a survey name it will break it
                 
                 System.out.println(useritem);
@@ -198,7 +207,7 @@ public class AnswerFrame extends javax.swing.JFrame {
                 for (int ei = 0; ei < userListBox.getItemCount(); ei++) {
                     
                     // if the current item equals one of the user names already here than don't put it in
-                    if (useritem.equals(userListBox.getItemAt(ei))) {
+                    if (useritem.equalsIgnoreCase(userListBox.getItemAt(ei))) {
                         insert = false;
                     }
                 }      
@@ -262,11 +271,11 @@ public class AnswerFrame extends javax.swing.JFrame {
         
         //so basically file f is going to be a file in the ques folder that has the right user name and contains the right survey name
         // ! we have a for loop which checks each file !
-        for (int i =0; i < finderSUR("C:\\Ques\\").length; i++) {
+        for (int i =0; i < finderSUR(pathway + "/").length; i++) {
             
             // if the file we are checking contains the user we have inputed and the survey we have inputed
-            if (finderSUR("C:\\Ques\\")[i].toString().toLowerCase().contains(surveyCaps) && finderSUR("C:\\Ques\\")[i].toString().toLowerCase().contains(userCaps)) {
-                fileToLoad = finderSUR("C:\\Ques\\")[i].toString(); // then that is the file we want to load
+            if (finderSUR(pathway + "/")[i].toString().toLowerCase().contains(surveyCaps) && finderSUR(pathway + "/")[i].toString().toLowerCase().contains(userCaps)) {
+                fileToLoad = finderSUR(pathway + "/")[i].toString(); // then that is the file we want to load
                 
                 f = new File(fileToLoad); //then set the file f as that file
                 System.out.println(fileToLoad);
@@ -291,7 +300,7 @@ public class AnswerFrame extends javax.swing.JFrame {
         else { //otherwise check to see if the user name file exists in all lower case
             String userNameVarLC = userNameVar.toLowerCase();
             
-            File f2 = new File("C:\\Ques\\Save_" + userNameVarLC + "_" + surveyToGet + ".sur");
+            File f2 = new File(pathway + "/Save_" + userNameVarLC + "_" + surveyToGet + ".sur");
             if (f2.exists() && !f2.isDirectory()) {
                 System.out.println("Found the file in lowercase");
                 // reset label in case it was changed because of an error
@@ -327,7 +336,7 @@ public class AnswerFrame extends javax.swing.JFrame {
         
         DateLabel.setText("");
         
-        File f = new File("C:\\Ques\\");
+        File f = new File(pathway + "/");
         
         File[] matchingFiles = null;
         
@@ -475,7 +484,7 @@ public class AnswerFrame extends javax.swing.JFrame {
                 BufferedReader reader = null;
                 try {
                     // this is the reader that reads the current file stored
-                    reader = new BufferedReader(new FileReader("C:\\Ques\\" + matchingFiles[i].getName()));
+                    reader = new BufferedReader(new FileReader(pathway + "/" + matchingFiles[i].getName()));
                 } catch (Exception e) {
                     // the file cant be opened so we must assume their is some error
                     
@@ -1109,7 +1118,7 @@ public class AnswerFrame extends javax.swing.JFrame {
         BufferedReader read = null;
         try {
             System.out.println("Trying to find quesload");
-            read = new BufferedReader(new FileReader("C:\\Ques\\QuesLoad.txt"));
+            read = new BufferedReader(new FileReader(pathway + "/QuesLoad.txt"));
             
             //read the first 4 lines and store them to put back into the file later
             for (int i = 0; i < 4; i ++) {
@@ -1146,7 +1155,7 @@ public class AnswerFrame extends javax.swing.JFrame {
             
             try {
                 // NOW WE HAVE TO ADD A FIFTH LINE to the file
-                FileWriter appender = new FileWriter("C:\\Ques\\QuesLoad.txt" , true);
+                FileWriter appender = new FileWriter(pathway + "/QuesLoad.txt" , true);
                 
                 appender.write("\r\n/Documents"); // add a fifth line
                 
@@ -1161,6 +1170,8 @@ public class AnswerFrame extends javax.swing.JFrame {
                 InfoLabel1.setText(InfoLabel1.getText() + " (Error: please restart program, if error persists: support at nathansoftware.com)");
             }
         }
+        
+        System.out.println("Save Location*: " + savedLocation);
         
         
         String sb = CurrentTextString;
@@ -1181,8 +1192,9 @@ public class AnswerFrame extends javax.swing.JFrame {
         fileNameDate = fileNameDate.substring(0, fileNameDate.indexOf(":") - 3); // and cut off the time part of the date (everything the colon (and also the 3 characters right before the colon)) so just to have the day-month-year
         
         JFileChooser chooser = new JFileChooser();
-        chooser.setCurrentDirectory(new File(savedLocation));
-        chooser.setSelectedFile(new File(surveyToGet + " - " + userNameVar + " - " + fileNameDate));
+        System.out.println("Save Location*: " + savedLocation);
+        // set the directory to be at the saved location and set the field to contain the file name of the current save info
+        chooser.setSelectedFile(new File(savedLocation + "/" + surveyToGet + " - " + userNameVar + " - " + fileNameDate));
         int retrival = chooser.showSaveDialog(null);
         
         // IF YOU SELECT THE APPROVE OPTION IT DOES ALL THIS::
@@ -1199,19 +1211,17 @@ public class AnswerFrame extends javax.swing.JFrame {
             }
         
             // now save the location selected
-            savedLocation = chooser.getSelectedFile().getAbsolutePath();
-
-            // and cut off the name of the file (because .getAbsolutePath() includes the survey name and we just want the directory)
-            // we substring it from 0 -> the last \
-            savedLocation  = savedLocation.substring(0 , savedLocation.lastIndexOf("\\"));
+            savedLocation = chooser.getSelectedFile().getParent(); //get parent just gets the path
+            
+            System.out.println("SV : " + savedLocation);
 
 
-            // add to my file string the saved location
+            // add to my file string the saved location (we do this so that the next time it will show you the same folder)
             newSaveFile.append(savedLocation);
 
             // write the new save file!
             try {
-                BufferedWriter write = new BufferedWriter(new FileWriter("C:\\Ques\\QuesLoad.txt"));
+                BufferedWriter write = new BufferedWriter(new FileWriter(pathway + "/QuesLoad.txt"));
                 write.write(newSaveFile.toString());
                 write.close();
             } catch (IOException ex1) {

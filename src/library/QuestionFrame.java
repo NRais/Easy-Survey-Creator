@@ -25,11 +25,12 @@ import java.util.logging.Logger;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.text.*;
 
 /**
  *
- * Copyright 2017 Nathan Rais 
+ * Copyright 2018 Nathan Rais 
  * 
  *      This file is part of The Easy Survey Creator.
  *
@@ -53,6 +54,8 @@ public class QuestionFrame extends javax.swing.JFrame {
     // -- //
     MainStartup MS = new MainStartup();
     public String version = MS.version; //THIS REALLY SHOULD BE CHANGED EACH NEW VERSION
+    
+    String pathway = "C:\\Ques";
     // -- //
     
     public Dimension size = getSize();
@@ -72,11 +75,14 @@ public class QuestionFrame extends javax.swing.JFrame {
     public boolean userImage = false;
     public boolean continueWithSave = false;
     
-    //public JRadioButton[] options = new JRadioButton[5];
+    // progress bar total
+    public int progressTotal = 1;
+    public int progressCurrent = 0;
+    
     /**
      * Creates new form QuestionFrame
      */
-    public QuestionFrame() {
+    public QuestionFrame() {        
         initComponents();
         extraComponents();
         
@@ -91,13 +97,24 @@ public class QuestionFrame extends javax.swing.JFrame {
     public void beginProgram() {
                
         try {
-            BufferedReader reader = new BufferedReader(new FileReader("C:\\Ques\\QuesLoad.txt"));
+            BufferedReader reader = new BufferedReader(new FileReader(pathway + "/QuesLoad.txt"));
             
             questionFile = reader.readLine();
             
+            questionFileName = questionFile.substring(0, questionFile.indexOf(".csv"));
+
+            
             // the name is found between the last \ and the last .
-            questionFileName = questionFile.substring(questionFile.lastIndexOf("\\") + 1, questionFile.indexOf(".csv"));
-            System.out.println(questionFileName);
+            if (!questionFileName.contains("\\")) {
+                
+                questionFileName = questionFileName.substring(questionFileName.lastIndexOf("/") + 1);
+            } else {
+                // couldn't find /
+                // instead try \\
+                questionFileName = questionFileName.substring(questionFileName.lastIndexOf("\\") + 1);
+
+            }            
+            System.out.println("TO : " + questionFileName);
             
             //next get the image
             imageFile = reader.readLine();
@@ -189,24 +206,32 @@ public class QuestionFrame extends javax.swing.JFrame {
         
     }
     
-    public void checkForQuestionFile() {
+    public boolean checkForQuestionFile() {
         File f = new File(questionFile); //if there is a question file then do nothing
         if(f.exists() && !f.isDirectory()) {
-            // do nothing
+            setupProgressBar();
+            
+            return true; // if it doesn't break return true
         }
         else { //otherwise bring up an error because the program cant run
+            // kill the question frame and reload the menu
+            goToMainMenu();
+            
             System.out.println("Error");
-            JFrame error = new JFrame("ERROR");
+            JFrame error = new JFrame("");
             error.setAlwaysOnTop(true);
             JLabel errorLabel = new JLabel("ERROR: No Question File");
+            errorLabel.setSize(180,100);
+            errorLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
             error.setSize(180,100);
             error.setLocationRelativeTo(null);
             error.setVisible(true);
             error.add(errorLabel);
+            return false; // if it breaks return false
         }
     }
     
-    // FUNCTION READ EACH TIME QUESTION FILE OPENED
+    // FUNCTION to Read the current question (run for each question in a survey)
     public void readQuestionFile(int questionNumber) throws FileNotFoundException, IOException {
         BOption1.setVisible(true);
         BOption2.setVisible(true);
@@ -217,119 +242,127 @@ public class QuestionFrame extends javax.swing.JFrame {
         // basically this function opens and reads the file up to the question you are on
         // then it reads the question you are on and shows it
         
-        checkForQuestionFile(); //first check for a question file
-        
-        BufferedReader in = new BufferedReader(new FileReader(questionFile));
-        
-        //up to the QuesNum line read the lines and then continue
-        for (int i = 1; i < QuesNum; i++) {
-            in.readLine(); // read all the lines up to the question numbers line and just skip them
-        }
-        //when on the QuesNum line store it
-        String line = in.readLine();
-        
-        
-        //first figure out which question your on QuesNum
-        
-        String[] questionArray = null;
-        
-        //then read that line of the file and split it and store it in a array
-        try {
-            questionArray = line.split(",");
-        
-        
-            for (int i = 1; i < questionArray.length; i++) {
-                System.out.println("Question " + i + ": " + questionArray[i]);
+        if (checkForQuestionFile()) { //first check for a question file
+
+            BufferedReader in = new BufferedReader(new FileReader(questionFile));
+
+            //up to the QuesNum line read the lines and then continue
+            for (int i = 1; i < QuesNum; i++) {
+                in.readLine(); // read all the lines up to the question numbers line and just skip them
             }
-        } catch (Exception e) {
-            System.out.println("Break cause their are no more questions");
-            
-            //if this breaks then it means there is nothing in the line so its just a fluke and doesn't actually have a question therefore just end
-            QuestionLabel.setText("There are no more questions. Thank you " + userName + " for answering this survey.");
-            question = "BeforeLast";
-            GoButton.setText("Close");
+            //when on the QuesNum line store it
+            String line = in.readLine();
+
+
+            //first figure out which question your on QuesNum
+
+            String[] questionArray = null;
+
+            //then read that line of the file and split it and store it in a array
+            try {
+                questionArray = line.split(",");
+
+
+                for (int i = 1; i < questionArray.length; i++) {
+                    System.out.println("Question " + i + ": " + questionArray[i]);
+                }
+            } catch (Exception e) {
+                System.out.println("Break cause their are no more questions");
+
+                //if this breaks then it means there is nothing in the line so its just a fluke and doesn't actually have a question therefore just end
+                QuestionLabel.setText("There are no more questions. Thank you " + userName + " for answering this survey.");
+                question = "BeforeLast";
+                GoButton.setText("Close");
+            }
+
+            //then display the different fields of the array into the text fields and radio buttons
+            try {
+                System.out.println("Survey showing question");
+
+                // first check if we need to par it
+                String textLine = questionArray[1];
+                QuestionString = questionArray[1]; //assign our text line BEFORE we wrap the line. This variable then is stored in the save file.
+                // if the WordUtils.wrap'd line was used above then it would put new line chars in the save file
+                int i = 1;           
+
+                if(questionArray[1].length() > 68) { //if the questions too long
+                    // then wrap the question
+
+                    // break the line every 68 characters with a newline char
+                    textLine = WordUtils.wrap(textLine, 68);
+
+                    System.out.println("Too long question bumbing to next line");
+
+                    // break the string at any new line characters
+                    String[] lines = textLine.split("\n");
+                    // the number of different string created is the number of lines
+                    i = lines.length;
+                }            
+                QuestionLabel.setText(textLine);
+
+                // for each newline it has been wrapped, move up the label by 20
+                QuestionLabel.setLocation(10, 380 - 20*i);
+
+            } catch (Exception e) {
+                QuestionLabel.setText("There are no more questions. Thank you " + userName + " for answering this survey.");
+                question = "BeforeLast";
+                GoButton.setText("Close");
+            }
+            try {
+                BOption1.setSelected(false);
+                BOption1.setText("(A)  " + questionArray[2]);
+            } catch (Exception e) {
+                BOption1.setVisible(false);
+            }
+            try {
+                BOption2.setSelected(false);
+                BOption2.setText("(B)  " + questionArray[3]);
+            } catch (Exception e) {
+                BOption2.setVisible(false);
+            }
+            try {
+                BOption3.setSelected(false);
+                BOption3.setText("(C)  " + questionArray[4]);
+            } catch (Exception e) {
+                BOption3.setVisible(false);
+            }
+            try {
+                BOption4.setSelected(false);
+                BOption4.setText("(D)  " + questionArray[5]);
+            } catch (Exception e) {
+                BOption4.setVisible(false);
+            }
+            try {
+                BOption5.setSelected(false);
+                BOption5.setText("(E)  " + questionArray[6]);
+            } catch (Exception e) {
+                BOption5.setVisible(false);
+            }
+
+
+            //finnally close the reader
+            in.close();
         }
-        
-        //then display the different fields of the array into the text fields and radio buttons
-        try {
-            System.out.println("Survey showing question");
-            
-            // first check if we need to par it
-            String textLine = questionArray[1];
-            QuestionString = questionArray[1]; //assign our text line BEFORE we wrap the line. This variable then is stored in the save file.
-            // if the WordUtils.wrap'd line was used above then it would put new line chars in the save file
-            int i = 1;           
-            
-            if(questionArray[1].length() > 68) { //if the questions too long
-                // then wrap the question
-                
-                // break the line every 68 characters with a newline char
-                textLine = WordUtils.wrap(textLine, 68);
-                
-                System.out.println("Too long question bumbing to next line");
-                
-                // break the string at any new line characters
-                String[] lines = textLine.split("\n");
-                // the number of different string created is the number of lines
-                i = lines.length;
-            }            
-            QuestionLabel.setText(textLine);
-            
-            // for each newline it has been wrapped, move up the label by 20
-            QuestionLabel.setLocation(10, 380 - 20*i);
-            
-        } catch (Exception e) {
-            QuestionLabel.setText("There are no more questions. Thank you " + userName + " for answering this survey.");
-            question = "BeforeLast";
-            GoButton.setText("Close");
-        }
-        try {
-            BOption1.setSelected(false);
-            BOption1.setText("(A)  " + questionArray[2]);
-        } catch (Exception e) {
-            BOption1.hide();
-        }
-        try {
-            BOption2.setSelected(false);
-            BOption2.setText("(B)  " + questionArray[3]);
-        } catch (Exception e) {
-            BOption2.hide();
-        }
-        try {
-            BOption3.setSelected(false);
-            BOption3.setText("(C)  " + questionArray[4]);
-        } catch (Exception e) {
-            BOption3.hide();
-        }
-        try {
-            BOption4.setSelected(false);
-            BOption4.setText("(D)  " + questionArray[5]);
-        } catch (Exception e) {
-            BOption4.hide();
-        }
-        try {
-            BOption5.setSelected(false);
-            BOption5.setText("(E)  " + questionArray[6]);
-        } catch (Exception e) {
-            BOption5.hide();
-        }
-        
-        
-        //finnally close the reader
-        in.close();
     }
     
     // this runs all the extra functions i want that i cant put into the initComponents part of the form because
     // it is locked from all editing
     private void extraComponents() {
+        //get system variables
+        if (!SystemUtils.IS_OS_WINDOWS) {
+            pathway = SystemUtils.USER_HOME + "/Ques";
+            System.out.println("Home " + pathway);
+        }
+        
         Dimension size;
+        
         
         ErrorLabel.setVisible(false);
         
         //setExtendedState(JFrame.MAXIMIZED_BOTH); 
         //frame.setUndecorated(true); //if unremoved then this hides the menu bar at the top
         setVisible(true);
-        setSize(720, 580);
+        setSize(720, 620);
         setResizable(false);
         setLocationRelativeTo(null);
                 
@@ -360,15 +393,15 @@ public class QuestionFrame extends javax.swing.JFrame {
         GoButton.setOpaque(false);  
         
         
-        BOption1.hide();
+        BOption1.setVisible(false);
         BOption1.setSelectedIcon(new ImageIcon(getClass().getResource("/resources/ball-green.png")));
-        BOption2.hide();
+        BOption2.setVisible(false);
         BOption2.setSelectedIcon(new ImageIcon(getClass().getResource("/resources/ball-green.png")));
-        BOption3.hide();
+        BOption3.setVisible(false);
         BOption3.setSelectedIcon(new ImageIcon(getClass().getResource("/resources/ball-green.png")));
-        BOption4.hide();
+        BOption4.setVisible(false);
         BOption4.setSelectedIcon(new ImageIcon(getClass().getResource("/resources/ball-green.png")));
-        BOption5.hide();
+        BOption5.setVisible(false);
         BOption5.setSelectedIcon(new ImageIcon(getClass().getResource("/resources/ball-green.png")));
     }
     /**
@@ -397,6 +430,7 @@ public class QuestionFrame extends javax.swing.JFrame {
         BOption5 = new javax.swing.JCheckBox();
         QuestionLabel = new javax.swing.JTextPane();
         MainPicture = new javax.swing.JLabel();
+        progressBar = new javax.swing.JProgressBar();
 
         jLabel5.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
         jLabel5.setText("Would you like to overwrite this save file?");
@@ -480,12 +514,12 @@ public class QuestionFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(BOption1);
-        BOption1.setBounds(30, 390, 450, 30);
+        BOption1.setBounds(60, 390, 420, 30);
 
         versionLabel.setFont(new java.awt.Font("Arial", 0, 10)); // NOI18N
-        versionLabel.setText("Copyright NathanSoftware.com version 2.0.2");
+        versionLabel.setText("Copyright NathanSoftware.com version 2.0.6.1");
         getContentPane().add(versionLabel);
-        versionLabel.setBounds(490, 10, 210, 14);
+        versionLabel.setBounds(480, 10, 220, 14);
 
         ErrorLabel.setForeground(new java.awt.Color(255, 0, 0));
         ErrorLabel.setText("Please type a different name so you do not overwrite previous save files (ex. add a number or last name)");
@@ -528,7 +562,7 @@ public class QuestionFrame extends javax.swing.JFrame {
         getContentPane().add(GoButton);
         GoButton.setBounds(480, 480, 70, 60);
         getContentPane().add(InputField);
-        InputField.setBounds(120, 390, 230, 30);
+        InputField.setBounds(60, 390, 420, 30);
 
         BOption2.setFont(new java.awt.Font("SansSerif", 0, 10)); // NOI18N
         BOption2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/ball-blue.png"))); // NOI18N
@@ -538,7 +572,7 @@ public class QuestionFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(BOption2);
-        BOption2.setBounds(30, 420, 450, 30);
+        BOption2.setBounds(60, 420, 420, 30);
 
         BOption3.setFont(new java.awt.Font("SansSerif", 0, 10)); // NOI18N
         BOption3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/ball-blue.png"))); // NOI18N
@@ -548,7 +582,7 @@ public class QuestionFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(BOption3);
-        BOption3.setBounds(30, 450, 450, 30);
+        BOption3.setBounds(60, 450, 420, 30);
 
         BOption4.setFont(new java.awt.Font("SansSerif", 0, 10)); // NOI18N
         BOption4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/ball-blue.png"))); // NOI18N
@@ -558,7 +592,7 @@ public class QuestionFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(BOption4);
-        BOption4.setBounds(30, 480, 450, 30);
+        BOption4.setBounds(60, 480, 420, 30);
 
         BOption5.setFont(new java.awt.Font("SansSerif", 0, 10)); // NOI18N
         BOption5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/ball-blue.png"))); // NOI18N
@@ -568,7 +602,7 @@ public class QuestionFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(BOption5);
-        BOption5.setBounds(30, 510, 450, 30);
+        BOption5.setBounds(60, 510, 420, 30);
 
         QuestionLabel.setEditable(false);
         QuestionLabel.setBackground(new Color(0,0,0,0));
@@ -581,6 +615,10 @@ public class QuestionFrame extends javax.swing.JFrame {
         MainPicture.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/Monkey.jpg"))); // NOI18N
         getContentPane().add(MainPicture);
         MainPicture.setBounds(40, 0, 680, 510);
+
+        progressBar.setRequestFocusEnabled(false);
+        getContentPane().add(progressBar);
+        progressBar.setBounds(20, 560, 670, 20);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -604,7 +642,7 @@ public class QuestionFrame extends javax.swing.JFrame {
             userName = InputField.getText();
             
             if (userName != null) { //if you type something in here (rather than leaving it blank and so null)
-                File saveFileName = new File("C:\\Ques\\Save_" + userName + "_" + questionFileName + ".sur");
+                File saveFileName = new File(pathway + "/Save_" + userName + "_" + questionFileName + ".sur");
 
                 if (saveFileName.exists()) {
                     checkForOverwrite();
@@ -774,16 +812,7 @@ public class QuestionFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_ButtonReturnMouseExited
 
     private void ButtonReturnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonReturnActionPerformed
-        EasySurveyMenu ESF = new EasySurveyMenu();
-        
-        List<Image> icons = new ArrayList<>();
-        icons.add(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resources/Iconx16.png")));
-        icons.add(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resources/Iconx32.gif")));
-        icons.add(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resources/Iconx64.gif")));
-        ESF.setIconImages(icons);
-        
-        ESF.setVisible(true);
-        dispose();
+        goToMainMenu();
     }//GEN-LAST:event_ButtonReturnActionPerformed
 
     private void GoButtonMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_GoButtonMouseEntered
@@ -794,6 +823,58 @@ public class QuestionFrame extends javax.swing.JFrame {
         GoButton.setIcon(new ImageIcon(getClass().getResource("/resources/nextIcon.jpg")));
     }//GEN-LAST:event_GoButtonMouseExited
 
+    public void setupProgressBar() {
+        progressTotal = 1; // first reset it (it starts at 1 because there is a end screen)
+        try {
+
+            // check how many questions there are
+            BufferedReader in = new BufferedReader(new FileReader(questionFile));
+
+            boolean eof = false; // end of file (when you get the end it stops)
+
+            while (!eof) {
+                // read through the file till the end and count how many lines
+
+                // we know the end because it reaches a null statement
+                if(in.readLine() == null) {
+                    eof = true;
+                }
+                // if its not a null then we count it
+                else {
+                    progressTotal++;
+                }
+            }
+
+            System.out.println("Prog: " + progressTotal);
+
+            in.close();
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(QuestionFrame.class.getName()).log(Level.SEVERE, null, ex);
+            // this shouldn't happen because we only run this procedure if we have already confirmed a file exists
+        } catch (IOException ex) {
+            // this could happen... but i don't know why it would
+            // perhaps it would happen if we get to a null line
+            // then we would just ignore it
+        }
+        
+        // setup the progress bar to use the progress total
+        progressBar.setMaximum(progressTotal);
+        progressBar.setValue(progressCurrent);
+        this.repaint();
+    }
+    
+    public void goToMainMenu() {
+        EasySurveyMenu ESF = new EasySurveyMenu();
+        
+        List<Image> icons = new ArrayList<>();
+        icons.add(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resources/Iconx16.png")));
+        icons.add(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resources/Iconx32.gif")));
+        icons.add(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resources/Iconx64.gif")));
+        ESF.setIconImages(icons);
+        
+        ESF.setVisible(true);
+        dispose();
+    }
     
     public void checkForOverwrite() {
         overwriteFileFrame.setVisible(true);
@@ -812,150 +893,161 @@ public class QuestionFrame extends javax.swing.JFrame {
         boolean continueQues = true;
         ErrorLabel.setVisible(false);
 
-        if (null != question) switch (question) {
-            case "Middle":
-                String selectedBox = "";
-                StringBuilder saveFileLinesSB = new StringBuilder();
-                //when you click this button first it stores what box you've checked
-                if (BOption1.isSelected()) {
-                    selectedBox = "A";
-                    QuestionAnswer = BOption1.getText();
-                } else if (BOption2.isSelected()) {
-                    selectedBox = "B";
-                    QuestionAnswer = BOption2.getText();
-                } else if (BOption3.isSelected()) {
-                    selectedBox = "C";
-                    QuestionAnswer = BOption3.getText();
-                } else if (BOption4.isSelected()) {
-                    selectedBox = "D";
-                    QuestionAnswer = BOption4.getText();
-                } else if (BOption5.isSelected()) {
-                    selectedBox = "E";
-                    QuestionAnswer = BOption5.getText();
-                } else { //if none are selected then don't continue
-                    continueQues = false;
-                }   File saveFile = new File("C:\\Ques\\Save_" + userName + "_" + questionFileName + ".sur");
-                if (continueQues != false) {
+        if (null != question) {
+            progressCurrent ++; // increment the progress bar
+            
+            switch (question) {
+
+                case "Middle":
+                    String selectedBox = "";
+                    StringBuilder saveFileLinesSB = new StringBuilder();
+                    //when you click this button first it stores what box you've checked
+                    if (BOption1.isSelected()) {
+                        selectedBox = "A";
+                        QuestionAnswer = BOption1.getText();
+                    } else if (BOption2.isSelected()) {
+                        selectedBox = "B";
+                        QuestionAnswer = BOption2.getText();
+                    } else if (BOption3.isSelected()) {
+                        selectedBox = "C";
+                        QuestionAnswer = BOption3.getText();
+                    } else if (BOption4.isSelected()) {
+                        selectedBox = "D";
+                        QuestionAnswer = BOption4.getText();
+                    } else if (BOption5.isSelected()) {
+                        selectedBox = "E";
+                        QuestionAnswer = BOption5.getText();
+                    } else { //if none are selected then don't continue
+                        continueQues = false;
+                    }   
                     
-                    BufferedReader newReader = null; //create a file reader (to read the file duh!)
-                    try {
-                        if (saveFile.exists()) { //if there is a save file then read it
-                            
-                            newReader = new BufferedReader(new FileReader(saveFile));
-                            
-                            //first read all the lines up to the line your on and store them in the string builder
-                            for (int i = 1; i < QuesNum; i++) {
-                                String line = newReader.readLine();
-                                saveFileLinesSB.append(line).append("\r\n");
-                            }
-                            newReader.close();
-                        }
-                        else { //otherwise create a new file
-                            try {
-                                PrintWriter writer = new PrintWriter(saveFile, "UTF-8");
-                                writer.close();
-                            } catch (Exception e) {
-                                System.out.println("Couldn't create a new file");
-                            }
-                        }
-                    } catch (Exception ex) {}
-                    
-                    String answerLetter = QuestionAnswer.substring(0, QuestionAnswer.indexOf(' '));
-                    String answerString = (QuestionAnswer.substring(QuestionAnswer.indexOf(" ") + 1));
-                    saveFileLinesSB.append(QuesNum).append("," + QuestionString).append("," + answerLetter).append("," + answerString).append("\r\n");
-                    
-                    
-                    String saveFileLines = saveFileLinesSB.toString();
-                    
-                    //then open the save file and write to it
-                    
-                    try {
-                        BufferedWriter out = new BufferedWriter(new FileWriter("C:\\Ques\\Save_" + userName + "_" + questionFileName + ".sur"));
-                        out.write(saveFileLines); //rewrite the file with your lines instead
-                        out.close();
-                    } catch (IOException ex) {
-                        Logger.getLogger(QuestionFrame.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                    
-                    
-                    //then it loads the next question
-                    QuesNum++;
-                    
-                    
-                    // NOTE: now it trys to read another question
-                    try {
-                        readQuestionFile(QuesNum); //run the method readQuestonFile on question number (quesNum)
-                    } catch (IOException ex) {
-                        Logger.getLogger(QuestionFrame.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                }   break;
-                
-            // ----------    
-            // THE FIRST LINE OF THE SURVEY ASKS THEIR NAME
-            // ----------
-            case "First":
-                userName = InputField.getText();
-                // check for illegal characters in the user name
-                if (InputField.getText().contains("\\")
-                        | InputField.getText().contains("/")
-                        | InputField.getText().contains(":")
-                        | InputField.getText().contains("*")
-                        | InputField.getText().contains("/")
-                        | InputField.getText().contains("?")
-                        | InputField.getText().contains("\"")
-                        | InputField.getText().contains("<")
-                        | InputField.getText().contains(">")
-                        | InputField.getText().contains("|")) {
-                    
-                    ErrorLabel.setText("A user name can't contain any of the following characters \\ / : * ? \" < > |");
-                    ErrorLabel.setVisible(true);
-                    
-                    // then don't do anything!
-                }
-                
-                else if (!"".equals(userName)) {
-                    
-                    ErrorLabel.setText("");
-                    
-                    if (continueWithSave == true) {
-                        
-                        InputField.hide();
-                        
-                        BOption1.setVisible(true);
-                        BOption2.setVisible(true);
-                        BOption3.setVisible(true);
-                        BOption4.setVisible(true);
-                        BOption5.setVisible(true);
-                        
-                        question = "Middle";
-                        System.out.println("Setting stage to middle!");
-                        
-                        
-                        // NOW IT TRYS TO READ ANOTHER QUESTION
+                    File saveFile = new File(pathway + "/Save_" + userName + "_" + questionFileName + ".sur");
+
+                    if (continueQues != false) {
+
+                        BufferedReader newReader = null; //create a file reader (to read the file duh!)
                         try {
-                            readQuestionFile(QuesNum);
+                            if (saveFile.exists()) { //if there is a save file then read it
+
+                                newReader = new BufferedReader(new FileReader(saveFile));
+
+                                //first read all the lines up to the line your on and store them in the string builder
+                                for (int i = 1; i < QuesNum; i++) {
+                                    String line = newReader.readLine();
+                                    saveFileLinesSB.append(line).append("\r\n");
+                                }
+                                newReader.close();
+                            }
+                            else { //otherwise create a new file
+                                try {
+                                    PrintWriter writer = new PrintWriter(saveFile, "UTF-8");
+                                    writer.close();
+                                } catch (Exception e) {
+                                    System.out.println("Couldn't create a new file");
+                                }
+                            }
+                        } catch (Exception ex) {}
+
+                        String answerLetter = QuestionAnswer.substring(0, QuestionAnswer.indexOf(' '));
+                        String answerString = (QuestionAnswer.substring(QuestionAnswer.indexOf(" ") + 1));
+                        saveFileLinesSB.append(QuesNum).append("," + QuestionString).append("," + answerLetter).append("," + answerString).append("\r\n");
+
+
+                        String saveFileLines = saveFileLinesSB.toString();
+
+                        //then open the save file and write to it
+
+                        try {
+                            BufferedWriter out = new BufferedWriter(new FileWriter(pathway + "/Save_" + userName + "_" + questionFileName + ".sur"));
+                            out.write(saveFileLines); //rewrite the file with your lines instead
+                            out.close();
                         } catch (IOException ex) {
                             Logger.getLogger(QuestionFrame.class.getName()).log(Level.SEVERE, null, ex);
                         }
+
+
+                        //then it loads the next question
+                        QuesNum++;
+
+
+                        // NOTE: now it trys to read another question
+                        try {
+                            readQuestionFile(QuesNum); //run the method readQuestonFile on question number (quesNum)
+                        } catch (IOException ex) {
+                            Logger.getLogger(QuestionFrame.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }   break;
+
+
+
+                // ----------    
+                // THE FIRST LINE OF THE SURVEY ASKS THEIR NAME
+                // ----------
+                case "First":
+                    userName = InputField.getText();
+                    // check for illegal characters in the user name
+                    if (InputField.getText().contains("\\")
+                            | InputField.getText().contains("/")
+                            | InputField.getText().contains(":")
+                            | InputField.getText().contains("*")
+                            | InputField.getText().contains("?")
+                            | InputField.getText().contains("\"")
+                            | InputField.getText().contains("<")
+                            | InputField.getText().contains(">")
+                            | InputField.getText().contains("|")) {
+
+                        ErrorLabel.setText("A user name can't contain any of the following characters \\ / : * ? \" < > |");
+                        ErrorLabel.setVisible(true);
+
+                        // then don't do anything!
                     }
-                }
-                else { //if the user name is null then reset the variable
-                    continueWithSave = false;
-                    ErrorLabel.setText("Please type a name into the text field above");
-                    ErrorLabel.setVisible(true);
-                }   break;
-            case "BeforeLast":
-                dispose();
-                EasySurveyMenu ESF = new EasySurveyMenu();
-                List<Image> icons = new ArrayList<>();
-                icons.add(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resources/Iconx16.png")));
-                icons.add(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resources/Iconx32.gif")));
-                icons.add(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resources/Iconx64.gif")));
-                ESF.setIconImages(icons);
-                ESF.setVisible(true);
-                break;
-            default:
-                break;
+
+                    else if (!"".equals(userName)) {
+
+                        ErrorLabel.setText("");
+
+                        if (continueWithSave == true) {
+
+                            InputField.setVisible(false);
+
+                            BOption1.setVisible(true);
+                            BOption2.setVisible(true);
+                            BOption3.setVisible(true);
+                            BOption4.setVisible(true);
+                            BOption5.setVisible(true);
+
+                            question = "Middle";
+                            System.out.println("Setting stage to middle!");
+
+
+                            // NOW IT TRYS TO READ ANOTHER QUESTION
+                            try {
+                                readQuestionFile(QuesNum);
+                            } catch (IOException ex) {
+                                Logger.getLogger(QuestionFrame.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                        }
+                    }
+                    else { //if the user name is null then reset the variable
+                        continueWithSave = false;
+                        ErrorLabel.setText("Please type a name into the text field above");
+                        ErrorLabel.setVisible(true);
+                    }   break;
+
+                case "BeforeLast":
+                    dispose();
+                    EasySurveyMenu ESF = new EasySurveyMenu();
+                    List<Image> icons = new ArrayList<>();
+                    icons.add(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resources/Iconx16.png")));
+                    icons.add(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resources/Iconx32.gif")));
+                    icons.add(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resources/Iconx64.gif")));
+                    ESF.setIconImages(icons);
+                    ESF.setVisible(true);
+                    break;
+                default:
+                    break;
+
+            }
         }
     }
     
@@ -1012,6 +1104,7 @@ public class QuestionFrame extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JFrame overwriteFileFrame;
+    private javax.swing.JProgressBar progressBar;
     private javax.swing.JLabel versionLabel;
     // End of variables declaration//GEN-END:variables
 }

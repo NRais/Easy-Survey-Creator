@@ -22,11 +22,12 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -34,10 +35,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import org.apache.commons.lang3.SystemUtils;
 
 /**
  *
- * Copyright 2017 Nathan Rais 
+ * Copyright 2018 Nathan Rais 
  * 
  *      This file is part of The Easy Survey Creator.
  *
@@ -61,13 +63,11 @@ public class EasySurveyMenu extends javax.swing.JFrame {
     
     Frame passCheckFrame = null;
     String password = "";
-    String dateLine = "";
-    Date oldDate = null;
-    int monthsToUpdate = 6;
+    static int monthsToUpdate = 6;
     
-    int dateY;
-    int dateM;
-    String defaultLines = "C:\\Ques\\Default.csv\r\n/resources/Monkey.jpg\r\nDefault\r\nDefault\r\n/Documents";
+    String pathway = "C:\\Ques";
+    
+    String defaultLines = pathway + "Default.csv\r\n/resources/Monkey.jpg\r\nDefault\r\nDefault\r\n/Documents";
     String defaultCSVFileLines = "1,How are you doing today?,Very Good, Okay, Not that good, Terrible\r\n";
     boolean correctPassword = false;
 
@@ -98,7 +98,7 @@ public class EasySurveyMenu extends javax.swing.JFrame {
         
         versionLabel.setText("Copyright NathanSoftware.com version " + version);
         
-        this.setSize(720,500);
+        this.setSize(720,510);
         this.setResizable(false);
         this.setLocationRelativeTo(null);
         this.setVisible(true);
@@ -147,8 +147,7 @@ public class EasySurveyMenu extends javax.swing.JFrame {
         buttonBackRemoval(ButtonHelp);
         buttonBackRemoval(ButtonCreateSurvey);
         buttonBackRemoval(GPcreateNewSurveyButton);
-        
-                
+         
 
         prestart();
         
@@ -162,17 +161,25 @@ public class EasySurveyMenu extends javax.swing.JFrame {
         button.setFocusPainted(false);
         button.setOpaque(false);        
     }
-    
-    public void runCheckDate() {
-            checkDate();
-    }
-    
+        
     public void prestart() {
+        //get system variables
+        
+        // if the system is windows we use the default C:\\Ques
+        // otherwise we find the user's home directory and make a folder Ques there
+        if (!SystemUtils.IS_OS_WINDOWS) {
+            pathway = SystemUtils.USER_HOME + "/Ques";
+            System.out.println("Home " + pathway);
+        }
+                
+        //setup default lines
+        defaultLines = pathway + "/Default.csv\r\n/resources/Monkey.jpg\r\nDefault\r\nDefault\r\n/Documents";
+        
         /// FOR LOADING THE PASSWORD AND VERIFYING QUESLOAD ///
         BufferedReader read = null;
         try {
             System.out.println("Trying to find quesload");
-            read = new BufferedReader(new FileReader("C:\\Ques\\QuesLoad.txt"));
+            read = new BufferedReader(new FileReader(pathway + "/QuesLoad.txt"));
             
             //read the first three lines and skip
             read.readLine(); read.readLine(); read.readLine();
@@ -188,15 +195,17 @@ public class EasySurveyMenu extends javax.swing.JFrame {
             
             PrintWriter creator = null;
             try {
-                File f = new File("C:\\Ques\\");
+                File f = new File(pathway);
                 f.mkdirs();
 
-                creator = new PrintWriter("C:\\Ques\\QuesLoad.txt", "UTF-8");
-            } catch (Exception e) {}
+                creator = new PrintWriter(pathway + "/QuesLoad.txt", "UTF-8");
+            } catch (Exception e) {
+                System.out.println("can't create quesload file.. no premissions");
+            }
             creator.close();
             
             try {
-                BufferedWriter write = new BufferedWriter(new FileWriter("C:\\Ques\\QuesLoad.txt"));
+                BufferedWriter write = new BufferedWriter(new FileWriter(pathway + "/QuesLoad.txt"));
                 write.write(defaultLines);
                 write.close();
             } catch (IOException ex1) {
@@ -212,7 +221,7 @@ public class EasySurveyMenu extends javax.swing.JFrame {
         BufferedReader readDefaultCSV = null;
         try {
             System.out.println("Trying to find quesload");
-            readDefaultCSV = new BufferedReader(new FileReader("C:\\Ques\\Default.csv"));
+            readDefaultCSV = new BufferedReader(new FileReader(pathway + "/Default.csv"));
             
             //read the first line for posterity's sake :)
             //just kidding its read to make sure that this file isn't broken
@@ -229,159 +238,8 @@ public class EasySurveyMenu extends javax.swing.JFrame {
             CreateDefaultCSV();
         }
         
-        /// FOR CHECKING DATE INSTALLED ///
-        BufferedReader readDateCheck = null;
-        try {
-            String versionNumber = "";
-            SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
-            
-            System.out.println("Trying to find date file");
-            readDateCheck = new BufferedReader(new FileReader("Data.dat"));
-            
-            dateLine = readDateCheck.readLine(); //to make sure there is a line and to store it
-            versionNumber = readDateCheck.readLine();
-            
-            if (versionNumber == null) {//if this happens then there is no 2nd line for the version number so make one
-                versionNumber = version;
-                CreateDateFile();
-            }
-            
-            System.out.println("Version: " + version + " File Version: " + versionNumber);
-            
-            readDateCheck.close();
-            
-            // CHECK IF A NEW VERSION HAS BEEN INSTALLED
-            // IF the version in the program and data file are equal
-            // THEN we will store the date
-            // ----
-            // Otherwise the version number in the data file is different then the program
-            // THEN we can assume that a new version has just been installed and we will reset the data file
-            if (versionNumber.equals(version)) {
-
-                System.out.println(dateLine);
-
-                String[] dateStuff = dateLine.split("/");
-
-
-
-                if (dateStuff[0].startsWith("0")) {
-                    //if this is true then its 01,02,03,04,... so it won't register properly as an int
-                    dateStuff[0] = dateStuff[0].substring(1); //then change it so it doesn't have the zero
-                    System.out.println(dateStuff[0]);
-                }
-                if (dateStuff[2].contains(" ")) {
-                    //if this is true then it 2016 xx:xx:xx so it won't register properly as an int
-                    dateStuff[2] = dateStuff[2].substring(0 , dateStuff[2].indexOf(" ")); //then change it so it goes to the space and then stops
-                    System.out.println(dateStuff[2]);
-                }
-
-                try {
-                    oldDate = sdf.parse(dateLine); //turn the dateLine into a date and store it
-                } catch (ParseException ex) {
-                    Logger.getLogger(EasySurveyMenu.class.getName()).log(Level.SEVERE, null, ex);
-                }
-
-                // the Integer.parseInt below converts the string from the dateStuff array to an integer
-                dateM = Integer.parseInt(dateStuff[0]); //this should be the month so store it as such
-                dateY = Integer.parseInt(dateStuff[2]); //this should be the year so store it as such
-
-            }
-            else {//got the wrong date file so create a new one
-                CreateDateFile();
-            }
-            
-        } catch (FileNotFoundException ex) {
-            //IF THERES NO FILE CREATE ONE
-            
-            CreateDateFile();
-        } catch (IOException ex) {
-            //IF THERES NO WORDS IN THE FILE WRITE SOME
-            try {
-                //first create a date / time format
-                SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
-                //then open the file
-                BufferedWriter writeDateCheck = new BufferedWriter(new FileWriter("Data.dat"));
-                //then store the date
-                System.out.println(new Date());
-                String date = sdf.format(new Date());
-                //then write to the file
-                writeDateCheck.write(date);
-                //then write the version number on the next line
-                writeDateCheck.write("\r\n" + version);
-                writeDateCheck.close(); //the close the file
-                
-                dateLine = date;
-                
-                try {
-                    oldDate = sdf.parse(dateLine); //turn the dateLine into a date and store it
-                    
-                    storeOldDates(date);
-                } catch (ParseException exD) {
-                    Logger.getLogger(EasySurveyMenu.class.getName()).log(Level.SEVERE, null, exD);
-                }
-            } catch (IOException ex1) {CreateDateFile();}//this shouldn't throw an exception because i've already check for this file but if it does that means we need to creat this file (again)
-            
-        }
     }
-    
-        public void storeOldDates(String date) {
-            String[] dateStuff = date.split("/");
-
-            if (dateStuff[0].startsWith("0")) {
-                //if this is true then its 01,02,03,04,... so it won't register properly as an int
-                dateStuff[0] = dateStuff[0].substring(1); //then change it so it doesn't have the zero
-                System.out.println(dateStuff[0]);
-            }
-            if (dateStuff[2].contains(" ")) {
-                //if this is true then it 2016 xx:xx:xx so it won't register properly as an int
-                dateStuff[2] = dateStuff[2].substring(0 , dateStuff[2].indexOf(" ")); //then change it so it goes to the space and then stops
-                System.out.println(dateStuff[2]);
-            }
-
-            // the Integer.parseInt below converts the string from the dateStuff array to an integer
-            dateM = Integer.parseInt(dateStuff[0]); //this should be the month so store it as such
-            dateY = Integer.parseInt(dateStuff[2]); //this should be the year so store it as such
-        }
-    
-    public void CreateDateFile() {
-        //create a file creater
-        PrintWriter creator = null;
-        try {
-            //create file
-            creator = new PrintWriter("Data.dat", "UTF-8");
-        } catch (FileNotFoundException | UnsupportedEncodingException e) {}
-        creator.close(); //close file creater
-
-        try {
-            //first create a date / time format
-            SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
-                
-            BufferedWriter write = new BufferedWriter(new FileWriter("Data.dat"));
-            //get the current date
-            System.out.println(new Date());
-            String date = sdf.format(new Date());
-            //then write to the file
-            write.write(date);
-            write.write("\r\n" + version);
-            write.close();
-            
-            dateLine = date;
-            
-            try {
-                oldDate = sdf.parse(dateLine); //turn the dateLine into a date and store it
-                
-                storeOldDates(date);
-            } catch (ParseException exD) {
-                Logger.getLogger(EasySurveyMenu.class.getName()).log(Level.SEVERE, null, exD);
-            }
-
-        } catch (IOException ex1) {
-            //hmm... this probably only would get an error if it didn't have permissions
-            //i can't do anything about that
-            Logger.getLogger(EasySurveyMenu.class.getName()).log(Level.SEVERE, null, ex1);
-        }
-    }
-    
+          
     public void CreateDefaultCSV() {
         //if this happens there is no default.csv file so make one
             //       *IF THERE IS NO DEFAULT CSV*
@@ -389,73 +247,79 @@ public class EasySurveyMenu extends javax.swing.JFrame {
             
             PrintWriter creator = null;
             try {
-                File f = new File("C:\\Ques\\");
+                File f = new File(pathway + "/");
                 f.mkdirs();
 
-                creator = new PrintWriter("C:\\Ques\\Default.csv", "UTF-8");
+                creator = new PrintWriter(pathway + "/Default.csv", "UTF-8");
                 
                 creator.close();
             } catch (Exception e) {}
             
             
             try {
-                BufferedWriter write = new BufferedWriter(new FileWriter("C:\\Ques\\Default.csv"));
+                BufferedWriter write = new BufferedWriter(new FileWriter(pathway + "/Default.csv"));
                 write.write(defaultCSVFileLines);
                 write.close();
             } catch (IOException ex1) {
                 Logger.getLogger(EasySurveyMenu.class.getName()).log(Level.SEVERE, null, ex1);
             }
     }
-    
-    public void checkDate() {
+        
+    // note that this takes Integers not ints because we want to deference them later
+    public static void checkDate(Integer dateY, Integer dateM, SimpleDateFormat ourFormat) {
         //first get current date
-        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+        SimpleDateFormat sdf = ourFormat; // this is the format we are importing (for example 22017 2month2017year
                 
         System.out.println(new Date());
-        String date = sdf.format(new Date());
+        
+        // get the current date
         Date nowDate = new Date();
+        LocalDate localDate = nowDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        
+        // figure out what the old date was
+        Date oldDate = null;
+        try {
+            oldDate = sdf.parse(dateM.toString() + dateY.toString()); // get the old date by parsing our number as a string
+        } catch (ParseException ex) {
+            // if it fails then i messed up something...
+        }
+        
+        // but in order to read it we are going to write the date in a more logical way
+        SimpleDateFormat finalDateFormater = new SimpleDateFormat("dd/MM/yyyy");
+        
+        System.out.println("NOW: " + finalDateFormater.format(nowDate) + " + THEN: " + finalDateFormater.format(oldDate));
         
         //spilt the date into its components to be read
-        String[] dateStuff = date.split("/");
-            
-        if (dateStuff[0].startsWith("0")) {
-            //if this is true then its 01,02,03,04,... so it won't register properly as an int
-            dateStuff[0] = dateStuff[0].substring(1); //then change it so it doesn't have the zero
-            System.out.println(dateStuff[0]);
-        }
-        if (dateStuff[2].contains(" ")) {
-            //if this is true then it 2016 xx:xx:xx so it won't register properly as an int
-            dateStuff[2] = dateStuff[2].substring(0 , dateStuff[2].indexOf(" ")); //then change it so it goes to the space and then stops
-            System.out.println(dateStuff[2]);
-        }
+        
 
-        // the Integer.parseInt below converts the string from the dateStuff array to an integer
-        int dateCurrentM = Integer.parseInt(dateStuff[0]); //this should be the month so store it as such
-        int dateCurrentY = Integer.parseInt(dateStuff[2]); //this should be the year so store it as such
+        // from the current local date we find out the month and year to calculate
+        int dateCurrentM = localDate.getMonthValue(); //this should be the month so store it as such
+        int dateCurrentY = localDate.getYear(); //this should be the year so store it as such
     
-        System.out.println("Old date: " + oldDate);
         System.out.println("Old Month: " + dateM);
         System.out.println("Old Year: " + dateY);
         
+        // ?-- UPDATE TIME --? //
+        // now we calculate if it is time for an update
+        
+        //if the new date is after the old one
         if (nowDate.after(oldDate)) {
-            //then the new date is after the old one
+            //then check if a year has changed
             if (dateCurrentY > dateY) {
-                //then a year has changed
-                if (dateCurrentM >= dateM + monthsToUpdate) {
-                    //then check if its also been over 6 months
-                    //If so show update frame
-                    updateDue();
-                }
-                else if (12 - dateM + dateCurrentM >= monthsToUpdate) { //12 - dateM will get how many months it was since last year when the file was made. For example: 12 - 4 (April) means it has been 8 months
-                    // this added to how many months its been since this year has started will get the total months
-                    // if its not clearly been more than 6 months then check if the combined year change adds up to more then 6 months
+                int numYears = dateCurrentY - dateY;
+
+                // years*12 will give us how many months it has been in years
+                // THEN subtract what month it was made on
+                // THEN add what month it is this year
+                // (and that tells us if it has been long enough)
+                if (12*(numYears) - dateM + dateCurrentM >= monthsToUpdate) { 
                     
                     //if so then show update frame
                     updateDue();
                 }
             }
+            //if it hasn't been a year then check if its been X months
             else if (dateCurrentM >= dateM + monthsToUpdate) {
-                //if it hasn't been a year then check if its been 6 months
                 
                 //if so show update frame
                 updateDue();
@@ -463,7 +327,7 @@ public class EasySurveyMenu extends javax.swing.JFrame {
         }
     }
     
-    public void updateDue() {
+    public static void updateDue() {
         Container cU = updateFrame.getContentPane();               
         cU.setBackground(Color.white);
 
@@ -474,13 +338,14 @@ public class EasySurveyMenu extends javax.swing.JFrame {
         updateFrame.setAlwaysOnTop(true);
         updateFrame.toFront();
         updateFrame.repaint();
-            
+          
+        /* TODO
         List<Image> icons = new ArrayList<>();
         icons.add(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resources/Iconx16.png")));
         icons.add(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resources/Iconx32.gif")));
         icons.add(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resources/Iconx64.gif")));
         
-        updateFrame.setIconImages(icons);
+        updateFrame.setIconImages(icons);*/
         
         updateFrame.setVisible(true);
         
@@ -763,7 +628,7 @@ public class EasySurveyMenu extends javax.swing.JFrame {
         LabelTT.setBounds(390, 190, 109, 19);
 
         ButtonAnalyseData.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
-        ButtonAnalyseData.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/ball-blue.png"))); // NOI18N
+        ButtonAnalyseData.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/ball-teal.png"))); // NOI18N
         ButtonAnalyseData.setText("Analyse Data");
         ButtonAnalyseData.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         ButtonAnalyseData.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -881,12 +746,12 @@ public class EasySurveyMenu extends javax.swing.JFrame {
 
     private void ButtonAnalyseDataMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ButtonAnalyseDataMouseEntered
         ButtonAnalyseData.setForeground(Color.CYAN);
-        ButtonAnalyseData.setIcon(new ImageIcon(getClass().getResource("/resources/ball-blueSelected.png")));
+        ButtonAnalyseData.setIcon(new ImageIcon(getClass().getResource("/resources/ball-tealSelected.png")));
     }//GEN-LAST:event_ButtonAnalyseDataMouseEntered
 
     private void ButtonAnalyseDataMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ButtonAnalyseDataMouseExited
         ButtonAnalyseData.setForeground(null);
-        ButtonAnalyseData.setIcon(new ImageIcon(getClass().getResource("/resources/ball-blue.png")));
+        ButtonAnalyseData.setIcon(new ImageIcon(getClass().getResource("/resources/ball-teal.png")));
     }//GEN-LAST:event_ButtonAnalyseDataMouseExited
 
     private void ButtonHelpMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ButtonHelpMouseEntered
@@ -1110,7 +975,7 @@ public class EasySurveyMenu extends javax.swing.JFrame {
         BufferedReader read = null;
         try {
             System.out.println("Trying to find quesload");
-            read = new BufferedReader(new FileReader("C:\\Ques\\QuesLoad.txt"));
+            read = new BufferedReader(new FileReader(pathway + "/QuesLoad.txt"));
             
             //read the first three lines and skip
             read.readLine(); read.readLine(); read.readLine();
@@ -1126,15 +991,15 @@ public class EasySurveyMenu extends javax.swing.JFrame {
             
             PrintWriter creator = null;
             try {
-                File f = new File("C:\\Ques\\");
+                File f = new File(pathway + "/");
                 f.mkdirs();
 
-                creator = new PrintWriter("C:\\Ques\\QuesLoad.txt", "UTF-8");
+                creator = new PrintWriter(pathway + "/QuesLoad.txt", "UTF-8");
             } catch (Exception e) {}
             creator.close();
             
             try {
-                BufferedWriter write = new BufferedWriter(new FileWriter("C:\\Ques\\QuesLoad.txt"));
+                BufferedWriter write = new BufferedWriter(new FileWriter(pathway + "/QuesLoad.txt"));
                 write.write(defaultLines);
                 write.close();
             } catch (IOException ex1) {
@@ -1258,7 +1123,7 @@ public class EasySurveyMenu extends javax.swing.JFrame {
     public void setPassword(boolean havePass) {
         StringBuilder sb = new StringBuilder();
         try {
-            BufferedReader read = new BufferedReader(new FileReader("C:\\Ques\\QuesLoad.txt"));
+            BufferedReader read = new BufferedReader(new FileReader(pathway + "/QuesLoad.txt"));
             
             for (int i = 0; i < 3; i++) { //read the first 3 lines in the quesload file
                 String line = read.readLine();
@@ -1280,7 +1145,7 @@ public class EasySurveyMenu extends javax.swing.JFrame {
         String lines = sb.toString();
         
         try {
-            BufferedWriter write = new BufferedWriter(new FileWriter("C:\\Ques\\QuesLoad.txt"));
+            BufferedWriter write = new BufferedWriter(new FileWriter(pathway + "/QuesLoad.txt"));
             
             write.write(lines);
             write.close();
@@ -1343,7 +1208,7 @@ public class EasySurveyMenu extends javax.swing.JFrame {
     private javax.swing.JLabel Background;
     private javax.swing.JButton ButtonAnalyseData;
     private javax.swing.JButton ButtonConductSurvey;
-    private javax.swing.JButton ButtonCreateSurvey;
+    private static javax.swing.JButton ButtonCreateSurvey;
     private javax.swing.JButton ButtonHelp;
     private javax.swing.JButton ButtonWebsite;
     private javax.swing.JButton ButtonWebsiteUpdate;
@@ -1363,7 +1228,7 @@ public class EasySurveyMenu extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JDialog passwordFrame;
     private javax.swing.JLabel pictureLabel;
-    private javax.swing.JFrame updateFrame;
+    private static javax.swing.JFrame updateFrame;
     private javax.swing.JLabel versionLabel;
     // End of variables declaration//GEN-END:variables
 }
