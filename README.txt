@@ -1,3 +1,6 @@
+
+---- EASY SURVEY CREATOR ----
+
 COPYRIGHT NOTICE: By downloading, receiving, installing or using The Easy Survey Creator you agree to the terms of the CC BY-ND license, under which it is licensed. https://creativecommons.org/licenses/by-nd/4.0/
 
 This application, its code, images, and all its components are copyrighted by Nathansoftware.com 2018 under the CC BY-ND 4.0 license
@@ -40,7 +43,7 @@ SOLUTION: Disable antivirus software temporarily and restart the installer. Righ
 
 SOLUTION: Disable antivirus software temporarily and restart the installer. If you have a deepscanning active on your antivirus you will be required to wait for a few minutes before the installation will continue.
 
-- During installation "App can’t be opened because it is from an unidentified developer". Right-Click and select "Open"
+- During installation "App canâ€™t be opened because it is from an unidentified developer". Right-Click and select "Open"
 
 
 Version 2.2.1 ->
